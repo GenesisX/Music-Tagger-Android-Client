@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Music-Tagger-Android-Client</string>
+    <string name="title_mpfile_detail">MP3 File Detail</string>
+
+</resources>
