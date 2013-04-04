@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
@@ -64,5 +66,12 @@ public class MPFileDetailActivity extends FragmentActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+      
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.player_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 }

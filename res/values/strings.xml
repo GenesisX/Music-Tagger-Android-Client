@@ -130,5 +130,8 @@
 
     <!-- Something went wrong -->
     <string name="error">Error</string>
+    <string name="fix_tag_menu">Fix Tag Info</string>
+    <string name="fix_album_art">Fix Album Art</string>
+    <string name="find_lyrics">Find Lyrics Online</string>
 
 </resources>
