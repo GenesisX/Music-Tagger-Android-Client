@@ -23,7 +23,7 @@ public class MPFileDetailActivity extends FragmentActivity {
         setContentView(R.layout.activity_mpfile_detail);
 
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -34,18 +34,19 @@ public class MPFileDetailActivity extends FragmentActivity {
         //
         // http://developer.android.com/guide/components/fragments.html
         //
-        if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putString(MPFileDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(MPFileDetailFragment.ARG_ITEM_ID));
-            MPFileDetailFragment fragment = new MPFileDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.mpfile_detail_container, fragment)
-                    .commit();
-        }
+        
+//        if (savedInstanceState == null) {
+//            // Create the detail fragment and add it to the activity
+//            // using a fragment transaction.
+//            Bundle arguments = new Bundle();
+//            arguments.putString(MPFileDetailFragment.ARG_ITEM_ID,
+//                    getIntent().getStringExtra(MPFileDetailFragment.ARG_ITEM_ID));
+//            MPFileDetailFragment fragment = new MPFileDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.mpfile_detail_container, fragment)
+//                    .commit();
+//        }
     }
 
     @Override
