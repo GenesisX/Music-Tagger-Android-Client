@@ -3,6 +3,8 @@ package com.music.musictagger;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 
 /**
@@ -77,5 +79,11 @@ public class MPFileListActivity extends FragmentActivity
             detailIntent.putExtra(MPFileDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+     MenuInflater menuInflater = getMenuInflater();
+           menuInflater.inflate(R.menu.menu, menu);
+           return super.onCreateOptionsMenu(menu);
     }
 }
