@@ -46,9 +46,9 @@ public class MP3List {
 
     static {
         // Add 3 sample items.
-        addItem(new MP3File("1", "MP3 File"));
-        addItem(new MP3File("2", "Item 2"));
-        addItem(new MP3File("3", "Item 3"));
+        addItem(new MP3File("1", "MP3 1"));
+        addItem(new MP3File("2", "MP3 2"));
+        addItem(new MP3File("3", "MP3 3"));
     }
 
     private static void addItem(MP3File item) {
