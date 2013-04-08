@@ -12,10 +12,10 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.andrew.apollo.R;
+/*import com.andrew.apollo.R;
 import com.andrew.apollo.ui.widgets.RepeatingImageButton;
 import com.andrew.apollo.utils.MusicUtils;
-import com.andrew.apollo.utils.ThemeUtils;
+import com.andrew.apollo.utils.ThemeUtils;*/
 import com.music.musictagger.mp3.MP3List;
 
 /**
@@ -113,16 +113,16 @@ public class MPFileDetailFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                cycleRepeat();
+               // cycleRepeat();
             }
         });
 
-        mPrev.setRepeatListener(mRewListener, 260);
+        
         mPrev.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if (MusicUtils.mService == null)
+           /*     if (MusicUtils.mService == null)
                     return;
                 try {
                     if (MusicUtils.mService.position() < 2000) {
@@ -133,7 +133,7 @@ public class MPFileDetailFragment extends Fragment {
                     }
                 } catch (RemoteException ex) {
                     ex.printStackTrace();
-                }
+                }*/
             }
         });
 
@@ -141,22 +141,22 @@ public class MPFileDetailFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                doPauseResume();
+                //doPauseResume();
             }
         });
 
-        mNext.setRepeatListener(mFfwdListener, 260);
+       
         mNext.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if (MusicUtils.mService == null)
+                /*if (MusicUtils.mService == null)
                     return;
                 try {
                     MusicUtils.mService.next();
                 } catch (RemoteException ex) {
                     ex.printStackTrace();
-                }
+                }*/
             }
         });
 
@@ -164,24 +164,19 @@ public class MPFileDetailFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                toggleShuffle();
+                //toggleShuffle();
             }
         });
 
         mProgress = (SeekBar)root.findViewById(android.R.id.progress);
         if (mProgress instanceof SeekBar) {
             SeekBar seeker = mProgress;
-            seeker.setOnSeekBarChangeListener(mSeekListener);
+            //seeker.setOnSeekBarChangeListener(mSeekListener);
         }
         mProgress.setMax(1000);
-
-        // Theme chooser
-        ThemeUtils.setImageButton(getActivity(), mPrev, "apollo_previous");
-        ThemeUtils.setImageButton(getActivity(), mNext, "apollo_next");
-        ThemeUtils.setProgessDrawable(getActivity(), mProgress, "apollo_seekbar_background");
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.mpfile_detail)).setText(mItem.getParent() );
+            ((TextView) root.findViewById(R.id.mpfile_detail)).setText(mItem.getParent() );
 
         }
 
