@@ -3,9 +3,17 @@ package com.music.musictagger;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.music.musictagger.mp3.MP3List;
 
@@ -66,6 +74,71 @@ public class MPFileListFragment extends ListFragment {
     public MPFileListFragment() {
     }
 
+	@Override
+	public void onActivityCreated(Bundle savedState) {
+	    super.onActivityCreated(savedState);
+
+	    getListView().setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+	    getListView().setOnItemLongClickListener(new OnItemLongClickListener() {	    
+	    	
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view,
+                int position, long id) {
+            ((ListView) parent).setItemChecked(position,
+                    ((ListView) parent).isItemChecked(position));
+            return false;
+        }
+    });
+	    
+        getListView().setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
+            private int nr = 0;
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                getActivity().getMenuInflater().inflate(R.menu.action_menu,
+                        menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                case R.id.fix_tag:
+                    Toast.makeText(getActivity(), "Fix Tag clicked",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.delete:
+                    Toast.makeText(getActivity(), "Delete clicked",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                nr = 0;
+            }
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode,
+                    int position, long id, boolean checked) {
+                if (checked) {
+                    nr++;
+                } else {
+                    nr--;
+                }
+                mode.setTitle(nr + " rows selected!");
+            }
+        });
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,13 +188,13 @@ public class MPFileListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(MP3List.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(MP3List.ITEMS.get(position).getFilename() );
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mActivatedPosition != ListView.INVALID_POSITION) {
+        if (mActivatedPosition != AdapterView.INVALID_POSITION) {
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
@@ -140,7 +213,7 @@ public class MPFileListFragment extends ListFragment {
     }
 
     private void setActivatedPosition(int position) {
-        if (position == ListView.INVALID_POSITION) {
+        if (position == AdapterView.INVALID_POSITION) {
             getListView().setItemChecked(mActivatedPosition, false);
         } else {
             getListView().setItemChecked(position, true);
