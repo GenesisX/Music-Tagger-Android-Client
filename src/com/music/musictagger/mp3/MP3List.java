@@ -17,6 +17,9 @@ import org.cmc.music.metadata.MusicMetadata;
 import org.cmc.music.metadata.MusicMetadataSet;
 import org.cmc.music.myid3.MyID3;
 
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.gracenote.mmid.MobileSDK.GNConfig;
 import com.gracenote.mmid.MobileSDK.GNOperationStatusChanged;
 import com.gracenote.mmid.MobileSDK.GNOperations;
@@ -33,48 +36,97 @@ import com.gracenote.mmid.MobileSDK.GNStatus;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class MP3List {
-
-    /**
-     * An array of sample (dummy) items.
-     */
     public static List<MP3File> ITEMS = new ArrayList<MP3File>();
-
-    /**
-     * A map of sample (dummy) items, by ID.
-     */
     public static Map<String, MP3File> ITEM_MAP = new HashMap<String, MP3File>();
-
+    private TextView liststatus;
     static {
         // Add 3 sample items.
-        addItem(new MP3File("1", "MP3 1"));
-        addItem(new MP3File("2", "MP3 2"));
-        addItem(new MP3File("3", "MP3 3"));
+        searchDir("/sdcard");
     }
 
     private static void addItem(MP3File item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.id, item);
+        ITEM_MAP.put(item.getTitle(), item);
     }
     public static boolean isValidFile(String path){
     	if(path.toLowerCase().endsWith(".mp3"))
     		return true;
     	return false;
     } 
+    
+    public static void searchDir(String searchpath){
+    	String[] filenames;
+    	String fileparent;
+    	File folder = new File(searchpath);
+		if (folder.exists()) {
+			if(folder.isDirectory()){
+				filenames = folder.list();
+				fileparent = folder.getAbsolutePath();
+			}
+			else{
+				filenames=new String[]{folder.getAbsolutePath()};
+				fileparent = folder.getParent();
+			}
+			boolean hasFiles = false;
+			for (int i=0;i<filenames.length;++i) {
+				 	if(isValidFile(filenames[i])){
+						addItem(new MP3File(filenames[i],fileparent));
+					}
+			}
+			if(hasFiles){
 
-    /**
-     * A dummy item representing a piece of content.
-     */
+			}
+			else
+			{
+		//		updateStatus("Files not Supported.we currently support only mp3 files.",true);
+			}
+			
+		}
+		//else
+		//	Toast.makeText(getApplicationContext(), "No File/Folder", Toast.LENGTH_LONG).show();
+	}
+    	
+    
+
+
     public static class MP3File {
-        public String id;
-        public String content;
-
-        public MP3File(String id, String content) {
-            this.id = id;
-            this.content = content;
+    	private TextView status;
+    	private String filename,fileparent;
+        private String title,artist,album;
+        private File mp3;
+        private byte[] album_art;
+        
+        public MP3File(String filename, String fileparent) {
+            this.filename = filename;
+            this.fileparent = fileparent;
+            mp3 = new File(fileparent+"/"+filename);
         }
+
+        public File getMusic(){
+        	return mp3;
+        }
+        public String getFilename(){
+        	return this.filename;
+        }
+        public String getTitle(){
+        	return this.title;
+        }
+        public void setTitle(String title){
+        	this.title = title;
+        }
+        public void setName(String path){
+        	this.filename = path;
+        }
+        public String getParent(){
+        	return this.fileparent;
+        }
+        public void setParent(String parent){
+        	this.fileparent = parent;
+        }
+        
         @Override
         public String toString() {
-            return content;
+            return filename;
         }
     }
 }
