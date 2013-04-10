@@ -1,5 +1,7 @@
 package com.music.musictagger;
 
+import java.util.Iterator;
+
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
@@ -150,6 +152,7 @@ public class MPFileDetailFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
+
                 /*if (MusicUtils.mService == null)
                     return;
                 try {
@@ -182,4 +185,5 @@ public class MPFileDetailFragment extends Fragment {
 
         return root;
     }
+    
 }

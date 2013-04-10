@@ -1,5 +1,7 @@
 package com.music.musictagger;
 
+import com.music.musictagger.mp3.MP3List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -34,6 +36,9 @@ public class MPFileListActivity extends FragmentActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	//search mp3 file under Galaxy S3 external sd card
+    	MP3List.searchDir("/mnt/extSdCard/");
+    	MP3List.searchDir("/sdcard");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
 

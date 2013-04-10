@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Observable;
@@ -17,6 +19,8 @@ import org.cmc.music.metadata.MusicMetadata;
 import org.cmc.music.metadata.MusicMetadataSet;
 import org.cmc.music.myid3.MyID3;
 
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,10 +43,11 @@ public class MP3List {
     public static List<MP3File> ITEMS = new ArrayList<MP3File>();
     public static Map<String, MP3File> ITEM_MAP = new HashMap<String, MP3File>();
     private TextView liststatus;
-    static {
-        // Add 3 sample items.
-        searchDir("/sdcard");
-    }
+//    static {
+//        // Add 3 sample items.
+//        searchDir("/sdcard");
+//        searchDir("/sdcard1");
+//    }
 
     private static void addItem(MP3File item) {
         ITEMS.add(item);
@@ -69,7 +74,7 @@ public class MP3List {
 			}
 			boolean hasFiles = false;
 			for (int i=0;i<filenames.length;++i) {
-				 	if(isValidFile(filenames[i])){
+				 	if(isValidFile(filenames[i])&&!(ITEM_MAP.containsKey(filenames))){
 						addItem(new MP3File(filenames[i],fileparent));
 					}
 			}
@@ -89,24 +94,40 @@ public class MP3List {
     
 
 
-    public static class MP3File {
+    public static class MP3File implements OnCompletionListener {
     	private TextView status;
     	private String filename,fileparent;
         private String title,artist,album;
         private File mp3;
+        private boolean isPrepared = false;
+        private MediaPlayer mediaPlayer;
         private byte[] album_art;
         
         public MP3File(String filename, String fileparent) {
             this.filename = filename;
             this.fileparent = fileparent;
             mp3 = new File(fileparent+"/"+filename);
+            mediaPlayer = new MediaPlayer();
+    		initialize();
         }
 
+        private void initialize (){
+        	try{
+    			FileInputStream fis = new FileInputStream(mp3);
+    			FileDescriptor fileDescriptor = fis.getFD();
+    			mediaPlayer.setDataSource(fileDescriptor);
+    			mediaPlayer.prepare();
+    			isPrepared = true;
+    			mediaPlayer.setOnCompletionListener(this);
+    		} catch(Exception ex){
+    			throw new RuntimeException("Couldn't load music, uh oh!");
+    		}
+        }
         public File getMusic(){
         	return mp3;
         }
         public String getFilename(){
-        	return this.filename;
+        	return filename;
         }
         public String getTitle(){
         	return this.title;
@@ -128,5 +149,63 @@ public class MP3List {
         public String toString() {
             return filename;
         }
+        
+
+        public void switchTracks(){
+    		mediaPlayer.seekTo(0);
+    		mediaPlayer.pause();
+    	}
+        
+        public void pause(){
+        	if(mediaPlayer.isPlaying()){
+        		mediaPlayer.pause();
+        	}
+        }
+        
+        public void stop(){
+        	mediaPlayer.stop();
+    		synchronized(this){
+    			isPrepared = false;
+    		}
+        }
+        public void play(){
+        	if(mediaPlayer.isPlaying()){
+    			return;
+    		}
+    		try{
+    			synchronized(this){
+    				if(!isPrepared){
+    					//mediaPlayer.prepare();
+    					initialize();
+    				}
+    				mediaPlayer.start();
+    			}
+    		} catch(IllegalStateException ex){
+    			ex.printStackTrace();
+    		} 
+    			//catch(IOException ex){
+//    			ex.printStackTrace();
+//    		}	
+        }
+
+        public void dispose() {
+    		if(mediaPlayer.isPlaying()){
+    			//stop();
+    		}
+    		mediaPlayer.stop();
+    		mediaPlayer.reset();
+    		isPrepared = false;
+    		//mediaPlayer.release();
+    		
+    	}
+		@Override
+		public void onCompletion(MediaPlayer arg0) {
+			synchronized(this){
+				isPrepared = false;
+				mediaPlayer.reset();
+	    		//mediaPlayer.release();
+	    		
+			}
+		}
     }
 }
