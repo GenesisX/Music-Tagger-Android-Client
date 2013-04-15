@@ -3,16 +3,11 @@ package com.music.musictagger;
 
 import java.util.Iterator;
 import java.util.ListIterator;
-import java.util.Map;
-
-import com.music.musictagger.mp3.MP3List;
-import com.music.musictagger.mp3.MP3List.MP3File;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +17,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.music.musictagger.mp3.MP3List;
+import com.music.musictagger.mp3.MP3List.MP3File;
 
 public class MPFileDetailActivity extends FragmentActivity {
 	private String mp3_id;

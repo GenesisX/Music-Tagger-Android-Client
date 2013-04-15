@@ -1,8 +1,11 @@
 package com.music.musictagger;
 
+import java.util.Iterator;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,10 +15,12 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Checkable;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.music.musictagger.mp3.MP3List;
+import com.music.musictagger.mp3.MP3List.MP3File;
 
 /**
  * A list fragment representing a list of MP3 Files. This fragment
@@ -28,6 +33,8 @@ import com.music.musictagger.mp3.MP3List;
  */
 public class MPFileListFragment extends ListFragment {
 
+	private static MP3File currentMP3;
+	
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -44,7 +51,8 @@ public class MPFileListFragment extends ListFragment {
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
-
+    
+    private static ArrayAdapter adapter;
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -112,10 +120,32 @@ public class MPFileListFragment extends ListFragment {
                 case R.id.fix_tag:
                     Toast.makeText(getActivity(), "Fix Tag clicked",
                             Toast.LENGTH_SHORT).show();
+                    Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
+                	while (iterator.hasNext()) {
+                		currentMP3 = iterator.next();
+//                		TODO: currentMP3.fix();
+                	} 
                     break;
                 case R.id.delete:
                     Toast.makeText(getActivity(), "Delete clicked",
                             Toast.LENGTH_SHORT).show();
+                    SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+                    int topPosition = checkedItems.keyAt(0) - 1;
+                    int counter = 0;
+                    for (int i = 0; i < checkedItems.size(); i++) {
+                        if(checkedItems.valueAt(i)) {
+                        	 MP3List.ITEMS.remove(i-(counter++));
+                        	 nr--;
+                         }
+                    }
+                    adapter.notifyDataSetChanged();
+                    getListView().clearChoices();
+                    for (int i = 0; i < getListView().getChildCount(); i++) {
+                        View c = getListView().getChildAt(i);
+                        if (c instanceof Checkable) {
+                            ((Checkable) c).setChecked(false);
+                        }
+                    }
                     break;
                 }
                 return false;
@@ -134,7 +164,7 @@ public class MPFileListFragment extends ListFragment {
                 } else {
                     nr--;
                 }
-                mode.setTitle(nr + " rows selected!");
+                mode.setTitle(nr + " selected");
             }
         });
 	}
@@ -144,11 +174,12 @@ public class MPFileListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<MP3List.MP3File>(
+        adapter = new ArrayAdapter<MP3List.MP3File>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                MP3List.ITEMS));
+                MP3List.ITEMS);
+        setListAdapter(adapter);
     }
 
     @Override
@@ -170,7 +201,7 @@ public class MPFileListFragment extends ListFragment {
         if (!(activity instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
-
+        
         mCallbacks = (Callbacks) activity;
     }
 

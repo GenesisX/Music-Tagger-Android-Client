@@ -1,24 +1,21 @@
 package com.music.musictagger;
 
-import java.util.Iterator;
-
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.music.musictagger.mp3.MP3List;
 /*import com.andrew.apollo.R;
 import com.andrew.apollo.ui.widgets.RepeatingImageButton;
 import com.andrew.apollo.utils.MusicUtils;
 import com.andrew.apollo.utils.ThemeUtils;*/
-import com.music.musictagger.mp3.MP3List;
 
 /**
  * A fragment representing a single MP3 File detail screen.

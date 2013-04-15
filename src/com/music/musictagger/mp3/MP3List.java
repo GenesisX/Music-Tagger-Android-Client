@@ -1,37 +1,31 @@
 package com.music.musictagger.mp3;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.cmc.music.common.ID3WriteException;
-import org.cmc.music.metadata.IMusicMetadata;
 import org.cmc.music.metadata.MusicMetadata;
 import org.cmc.music.metadata.MusicMetadataSet;
 import org.cmc.music.myid3.MyID3;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
-import com.gracenote.mmid.MobileSDK.GNOperationStatusChanged;
-import com.gracenote.mmid.MobileSDK.GNOperations;
 import com.gracenote.mmid.MobileSDK.GNSearchResponse;
 import com.gracenote.mmid.MobileSDK.GNSearchResult;
 import com.gracenote.mmid.MobileSDK.GNSearchResultReady;
-import com.gracenote.mmid.MobileSDK.GNStatus;
 
+import com.music.musictagger.MPFileListActivity;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -43,6 +37,12 @@ public class MP3List {
     public static List<MP3File> ITEMS = new ArrayList<MP3File>();
     public static Map<String, MP3File> ITEM_MAP = new HashMap<String, MP3File>();
     private TextView liststatus;
+    
+    // TODO assign context
+    private static Context context;
+    
+//    = MPFileListActivity.context;
+    
 //    static {
 //        // Add 3 sample items.
 //        searchDir("/sdcard");
@@ -53,12 +53,14 @@ public class MP3List {
         ITEMS.add(item);
         ITEM_MAP.put(item.getTitle(), item);
     }
+    
     public static boolean isValidFile(String path){
     	if(path.toLowerCase().endsWith(".mp3"))
     		return true;
     	return false;
     } 
     
+
     public static void searchDir(String searchpath){
     	String[] filenames;
     	String fileparent;
@@ -75,7 +77,7 @@ public class MP3List {
 			boolean hasFiles = false;
 			for (int i=0;i<filenames.length;++i) {
 				 	if(isValidFile(filenames[i])&&!(ITEM_MAP.containsKey(filenames))){
-						addItem(new MP3File(filenames[i],fileparent));
+						addItem(new MP3File(filenames[i],fileparent, context));
 					}
 			}
 			if(hasFiles){
@@ -91,9 +93,6 @@ public class MP3List {
 		//	Toast.makeText(getApplicationContext(), "No File/Folder", Toast.LENGTH_LONG).show();
 	}
     	
-    
-
-
     public static class MP3File implements OnCompletionListener {
     	private TextView status;
     	private String filename,fileparent;
@@ -102,8 +101,9 @@ public class MP3List {
         private boolean isPrepared = false;
         private MediaPlayer mediaPlayer;
         private byte[] album_art;
-        
-        public MP3File(String filename, String fileparent) {
+        private Context context;
+
+        public MP3File(String filename, String fileparent, Context context) {
             this.filename = filename;
             this.fileparent = fileparent;
             mp3 = new File(fileparent+"/"+filename);
@@ -123,6 +123,7 @@ public class MP3List {
     			throw new RuntimeException("Couldn't load music, uh oh!");
     		}
         }
+
         public File getMusic(){
         	return mp3;
         }
@@ -207,5 +208,93 @@ public class MP3List {
 	    		
 			}
 		}
+        
+        // fixing tag
+/*        private GNConfig config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", context);
+    	private RecognizeFileOperation op;
+        
+        public void fix()
+        {
+        	op = new RecognizeFileOperation( filename );
+        	
+        	if (op.gotIt)
+        	{
+        		// TODO if success
+        	}
+        	
+        	else
+        	{
+        		// TODO if failed
+        	}
+        }
+        
+        private class RecognizeFileOperation implements GNSearchResultReady{
+    		
+    		private String filePath;
+    		public boolean gotIt;
+
+    		RecognizeFileOperation(String inFilePath) {
+    			this.filePath = inFilePath;
+    		}
+
+    		@Override
+    		public void GNResultReady(GNSearchResult result) {
+    				if (result.isFingerprintSearchNoMatchStatus()) {
+    					// TODO : return null
+    					gotIt = false;
+    				} else {
+    					// fix
+    					GNSearchResponse bestResponse = result.getBestResponse();
+    					update(bestResponse);
+    					gotIt = true;
+    				}
+    		}
+        }
+        
+        public void update(final GNSearchResponse bestResponse)
+        {
+        	title = bestResponse.getTrackTitle();
+        	artist = bestResponse.getArtist();
+        	album = bestResponse.getAlbumTitle();
+        	MusicMetadataSet dataset = null;
+        	String dstpath = fileparent+"/"+title+".mp3";
+        	
+			File temp=new File(fileparent,"temp.mp3");
+			try {
+				temp.createNewFile();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			MusicMetadata set=new MusicMetadata("new");
+			set.setSongTitle(title);
+			set.setArtist(artist);
+			set.setAlbum(album);
+			
+	    	try {
+				dataset=new MyID3().read(mp3);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			try {
+				new MyID3().write(mp3, temp, dataset, set);
+				mp3.delete();
+				temp.renameTo(new File(dstpath));
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ID3WriteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+        */
+        
     }
 }
