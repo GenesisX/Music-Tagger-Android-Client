@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	android:id="@+id/widget0"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+<Button
+    android:id="@+id/widget46"
+    android:layout_width="158dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_marginBottom="26dp"
+    android:text="Cancel" />
+
+<Button
+    android:id="@+id/widget45"
+    android:layout_width="163dp"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/widget46"
+    android:layout_alignBottom="@+id/widget46"
+    android:layout_alignParentLeft="true"
+    android:text="Save" />
+
+<TextView
+    android:id="@+id/widget38"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignLeft="@+id/widget40"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="18dp"
+    android:text="Song" />
+
+<EditText
+    android:id="@+id/widget34"
+    android:layout_width="319dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/widget38"
+    android:layout_marginTop="15dp"
+    android:ems="10"
+    android:text="Time is running out"
+    android:textSize="18sp" >
+
+    <requestFocus />
+</EditText>
+
+<EditText
+    android:id="@+id/widget39"
+    android:layout_width="322dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/widget40"
+    android:layout_marginTop="14dp"
+    android:ems="10"
+    android:text="Muse"
+    android:textSize="18sp" />
+
+<EditText
+    android:id="@+id/widget43"
+    android:layout_width="318dp"
+    android:layout_height="wrap_content"
+    android:layout_above="@+id/widget46"
+    android:layout_alignParentLeft="true"
+    android:layout_marginBottom="39dp"
+    android:ems="10"
+    android:text="2001"
+    android:textSize="18sp" />
+
+<EditText
+    android:id="@+id/widget41"
+    android:layout_width="320dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/widget42"
+    android:layout_marginTop="19dp"
+    android:ems="10"
+    android:text="Absolute"
+    android:textSize="18sp" />
+
+<TextView
+    android:id="@+id/widget40"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/widget34"
+    android:layout_marginLeft="19dp"
+    android:layout_marginTop="22dp"
+    android:text="Artist" />
+
+<TextView
+    android:id="@+id/widget42"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignLeft="@+id/widget40"
+    android:layout_below="@+id/widget39"
+    android:layout_marginTop="17dp"
+    android:text="Album" />
+
+<TextView
+    android:id="@+id/widget44"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_above="@+id/widget43"
+    android:layout_alignLeft="@+id/widget42"
+    android:layout_marginBottom="14dp"
+    android:text="Year" />
+
+</RelativeLayout>
+
+
