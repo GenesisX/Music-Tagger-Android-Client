@@ -5,24 +5,6 @@
 	android:layout_height="fill_parent"
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
-<Button
-    android:id="@+id/widget46"
-    android:layout_width="158dp"
-    android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
-    android:layout_marginBottom="26dp"
-    android:text="Cancel" />
-
-<Button
-    android:id="@+id/widget45"
-    android:layout_width="163dp"
-    android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/widget46"
-    android:layout_alignBottom="@+id/widget46"
-    android:layout_alignParentLeft="true"
-    android:text="Save" />
-
 <TextView
     android:id="@+id/widget38"
     android:layout_width="wrap_content"
@@ -55,17 +37,6 @@
     android:layout_marginTop="14dp"
     android:ems="10"
     android:text="Muse"
-    android:textSize="18sp" />
-
-<EditText
-    android:id="@+id/widget43"
-    android:layout_width="318dp"
-    android:layout_height="wrap_content"
-    android:layout_above="@+id/widget46"
-    android:layout_alignParentLeft="true"
-    android:layout_marginBottom="39dp"
-    android:ems="10"
-    android:text="2001"
     android:textSize="18sp" />
 
 <EditText
@@ -102,10 +73,39 @@
     android:id="@+id/widget44"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_above="@+id/widget43"
     android:layout_alignLeft="@+id/widget42"
-    android:layout_marginBottom="14dp"
+    android:layout_below="@+id/widget41"
+    android:layout_marginTop="14dp"
     android:text="Year" />
+
+<EditText
+    android:id="@+id/widget43"
+    android:layout_width="318dp"
+    android:layout_height="wrap_content"
+    android:layout_alignRight="@+id/widget34"
+    android:layout_below="@+id/widget44"
+    android:layout_marginTop="14dp"
+    android:ems="10"
+    android:text="2001"
+    android:textSize="18sp" />
+
+<Button
+    android:id="@+id/widget46"
+    android:layout_width="158dp"
+    android:layout_height="wrap_content"
+    android:layout_alignBaseline="@+id/widget45"
+    android:layout_alignBottom="@+id/widget45"
+    android:layout_alignRight="@+id/widget43"
+    android:text="Cancel" />
+
+<Button
+    android:id="@+id/widget45"
+    android:layout_width="163dp"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/widget43"
+    android:layout_marginTop="21dp"
+    android:text="Save" />
 
 </RelativeLayout>
 
