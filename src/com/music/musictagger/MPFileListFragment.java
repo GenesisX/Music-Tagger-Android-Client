@@ -3,6 +3,8 @@ package com.music.musictagger;
 import java.util.Iterator;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.SparseBooleanArray;
@@ -114,42 +116,82 @@ public class MPFileListFragment extends ListFragment {
                 return false;
             }
 
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                case R.id.fix_tag:
-                    Toast.makeText(getActivity(), "Fix Tag clicked",
-                            Toast.LENGTH_SHORT).show();
-                    Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
-                	while (iterator.hasNext()) {
-                		currentMP3 = iterator.next();
-//                		TODO: currentMP3.fix();
-                	} 
-                    break;
-                case R.id.delete:
-                    Toast.makeText(getActivity(), "Delete clicked",
-                            Toast.LENGTH_SHORT).show();
-                    SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
-                    int topPosition = checkedItems.keyAt(0) - 1;
-                    int counter = 0;
-                    for (int i = 0; i < checkedItems.size(); i++) {
-                        if(checkedItems.valueAt(i)) {
-                        	 MP3List.ITEMS.remove(i-(counter++));
-                        	 nr--;
-                         }
-                    }
-                    adapter.notifyDataSetChanged();
-                    getListView().clearChoices();
-                    for (int i = 0; i < getListView().getChildCount(); i++) {
-                        View c = getListView().getChildAt(i);
-                        if (c instanceof Checkable) {
-                            ((Checkable) c).setChecked(false);
-                        }
-                    }
-                    break;
-                }
-                return false;
-            }
+    		@Override
+			public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				case R.id.fix_tag:
+
+					AlertDialog.Builder fixDialog = new AlertDialog.Builder(getActivity());
+					fixDialog.setMessage("are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int id) {
+							Toast.makeText(getActivity(), "Fix Tag clicked",
+									Toast.LENGTH_SHORT).show();
+							Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
+							while (iterator.hasNext()) {
+								currentMP3 = iterator.next();
+								//                		TODO: currentMP3.fix();
+							} 
+							mode.finish();
+							
+						}
+						})
+						.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// user canceled 
+							}
+						});
+					fixDialog.create();
+					fixDialog.show();
+
+					
+					break;
+				case R.id.delete:
+
+					AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
+					deleteDialog.setMessage("are you sure to delete?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Toast.makeText(getActivity(), "Delete clicked",
+									Toast.LENGTH_SHORT).show();
+							SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+							int topPosition = checkedItems.keyAt(0) - 1;
+							int counter = 0;
+							for (int i = 0; i < checkedItems.size(); i++) {
+								if(checkedItems.valueAt(i)) {
+									MP3List.ITEMS.remove(i-(counter++));
+									nr--;
+								}
+							}
+							adapter.notifyDataSetChanged();
+							getListView().clearChoices();
+							for (int i = 0; i < getListView().getChildCount(); i++) {
+								View c = getListView().getChildAt(i);
+								if (c instanceof Checkable) {
+									((Checkable) c).setChecked(false);
+								}
+							}
+							mode.finish();
+
+						}
+						
+					})
+					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//user canceled
+						}
+					});
+					deleteDialog.create();
+					deleteDialog.show();
+
+
+
+
+				
+
+					break;
+					}
+					return false;
+				}
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
