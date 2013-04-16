@@ -13,12 +13,25 @@ import java.util.Map;
 import org.cmc.music.common.ID3WriteException;
 import org.cmc.music.metadata.MusicMetadata;
 import org.cmc.music.metadata.MusicMetadataSet;
-import org.cmc.music.myid3.MyID3;
+import org.cmc.music.myid3.*;
+import org.cmc.music.common.*;
+
 
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Message;
+import android.widget.SeekBar;
 import android.widget.TextView;
+
+
+import com.mpatric.*;
+import com.mpatric.mp3agic.ID3v1;
+import com.mpatric.mp3agic.ID3v2;
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
 import com.gracenote.mmid.MobileSDK.GNSearchResponse;
@@ -37,7 +50,7 @@ public class MP3List {
     public static List<MP3File> ITEMS = new ArrayList<MP3File>();
     public static Map<String, MP3File> ITEM_MAP = new HashMap<String, MP3File>();
     private TextView liststatus;
-    
+	
     // TODO assign context
     private static Context context;
     
@@ -96,17 +109,20 @@ public class MP3List {
     public static class MP3File implements OnCompletionListener {
     	private TextView status;
     	private String filename,fileparent;
-        private String title,artist,album;
+        private String title,artist,album,track;
+        private long totalTime;
         private File mp3;
         private boolean isPrepared = false;
         private MediaPlayer mediaPlayer;
-        private byte[] album_art;
+        private SeekBar seekBar;
+        private byte[] album_art = null;
         private Context context;
 
         public MP3File(String filename, String fileparent, Context context) {
             this.filename = filename;
             this.fileparent = fileparent;
             mp3 = new File(fileparent+"/"+filename);
+            //use of mp3agic to retrive metadata etc
             mediaPlayer = new MediaPlayer();
     		initialize();
         }
@@ -119,11 +135,60 @@ public class MP3List {
     			mediaPlayer.prepare();
     			isPrepared = true;
     			mediaPlayer.setOnCompletionListener(this);
+    			
+ 			
+    			//use mp3agic to retrieve tag info
+                try {
+    				Mp3File mp3file = new Mp3File(mp3.getAbsolutePath());
+    				totalTime = mp3file.getLengthInSeconds();
+    				if(mp3file.hasId3v1Tag()){
+    					getID3v1Tag(mp3file);
+    				}else if(mp3file.hasId3v2Tag()){
+    					getID3v2Tag(mp3file);
+    				}
+    			} catch (UnsupportedTagException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (InvalidDataException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
     		} catch(Exception ex){
     			throw new RuntimeException("Couldn't load music, uh oh!");
     		}
         }
+        
+        /*use mp3agic to retrive id3v1 info* */
+        private void getID3v1Tag(Mp3File mp3file){
 
+        	ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+        	this.track = id3v1Tag.getTrack();
+        	this.artist = id3v1Tag.getArtist();
+        	this.title = id3v1Tag.getTitle();
+        	this.album = id3v1Tag.getAlbum();	    
+        }
+        
+        private void getID3v2Tag(Mp3File mp3file){
+
+        	ID3v2 id3v2Tag = mp3file.getId3v2Tag();
+        	this.track = id3v2Tag.getTrack();
+        	this.artist = id3v2Tag.getArtist();
+        	this.title = id3v2Tag.getTitle();
+        	this.album = id3v2Tag.getAlbum();	  
+        	this.album_art = id3v2Tag.getAlbumImage();
+            if (this.album_art != null) {
+            	//TODO: handle here if image exist
+            }
+        }
+        public void seekTo(int mPosOverride){
+        	mediaPlayer.seekTo(mPosOverride);
+        }
+        public MediaPlayer getMP(){
+        	return mediaPlayer;
+        }
         public File getMusic(){
         	return mp3;
         }
@@ -133,6 +198,15 @@ public class MP3List {
         public String getTitle(){
         	return this.title;
         }
+        public long getTotalTime (){
+        	return this.totalTime;
+        }
+        public String getAlbumArtist (){
+        	return this.album+"-"+this.artist;
+        }
+        public byte [] getArt(){
+        	return this.album_art;
+        } 
         public void setTitle(String title){
         	this.title = title;
         }

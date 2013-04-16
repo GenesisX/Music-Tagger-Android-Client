@@ -4,8 +4,16 @@ package com.music.musictagger;
 import java.util.Iterator;
 import java.util.ListIterator;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
+import android.os.Message;
+import android.os.RemoteException;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
@@ -17,6 +25,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+
 
 import com.music.musictagger.mp3.MP3List;
 import com.music.musictagger.mp3.MP3List.MP3File;
@@ -172,6 +182,7 @@ public class MPFileDetailActivity extends FragmentActivity {
     		if(tempName.equals(currentMP3.getFilename()) && iterator.hasPrevious()){
     			currentMP3.dispose();
     			currentMP3 = iterator.previous();
+    			mp3_id = currentMP3.getFilename();
     			updateMusicInfo();
     			break;
     		}
@@ -181,10 +192,86 @@ public class MPFileDetailActivity extends FragmentActivity {
     //needed when new track is loaded
     private void updateMusicInfo(){
     	//TODO: add title, artist, cover image, time etc..
-    	mTrackName.setText(currentMP3.getFilename());  
+    	mTrackName.setText(currentMP3.getTitle());  
+    	mAlbumArtistName.setText(currentMP3.getAlbumArtist());
+    	byte[] bmap = currentMP3.getArt();
+    	if(bmap != null){
+    		Bitmap bm = BitmapFactory.decodeByteArray(bmap, 0, bmap.length);
+    		mAlbumArt.setImageBitmap(bm);
+    	}else{
+    		mAlbumArt.setImageResource(R.drawable.default_album_art);
+    	}
+    	mTotalTime.setText(makeTimeString(currentMP3.getTotalTime()));
+    	mCurrentTime.setText(makeTimeString(0));
+    	//setSeekBar();
+    	mProgress.setProgress(0);
+    	mProgress.setMax((int)currentMP3.getTotalTime());
+    	mProgress.setOnSeekBarChangeListener(mSeekListener);    	
     	currentMP3.play();
     	isPlaying = true;
     }
+    //helper function to format music length
+    public static String makeTimeString(long longVal) {
+        int hours = (int) longVal / 3600;
+        int remainder = (int) longVal - hours * 3600;
+        int mins = remainder / 60;
+        remainder = remainder - mins * 60;
+        int sec = remainder;
+        if(sec < 10)
+        	return Integer.toString(mins)+":"+"0"+Integer.toString(sec);
+    	return Integer.toString(mins)+":"+Integer.toString(sec);
+    }
+    
+    //helper function to set seekbar
+    public void setSeekBar(){
+    	MediaPlayer mediaPlayer = currentMP3.getMP();
+		mediaPlayer.setOnPreparedListener(new OnPreparedListener() 
+        {
+          @Override
+          public void onPrepared(final MediaPlayer mp) 
+          {
+        	  mProgress.setMax(mp.getDuration());
+        	  new Thread(new Runnable() {
+
+        		  @Override
+        		  public void run() {
+        			  while(mp!=null && mp.getCurrentPosition()<mp.getDuration())
+        			  {
+        				  mProgress.setProgress(mp.getCurrentPosition());
+        				  Message msg=new Message();
+        				  int millis = mp.getCurrentPosition();
+        				  mCurrentTime.setText(makeTimeString(millis/1000));
+        			  }
+        		  }
+        	  }).start();
+
+          }
+        }); 
+    }
+    
+    
+    private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+            // TODO Auto-generated method stub
+            if (arg2 && isPlaying) {
+                //myProgress = oprogress;
+                currentMP3.seekTo(arg1*1000);
+                mCurrentTime.setText(makeTimeString(arg1));
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            // TODO Auto-generated method stub
+        }
+    };
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
