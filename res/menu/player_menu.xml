@@ -3,6 +3,7 @@
     <item android:id="@+id/fix_tag" android:title="@string/fix_tag_menu" android:showAsAction="never"></item>
     <item android:id="@+id/fix_album" android:showAsAction="never" android:title="@string/fix_album_art"></item>
     <item android:id="@+id/find_lyrics" android:showAsAction="never" android:title="@string/find_lyrics"></item>
+    <item android:id="@+id/fix_manually" android:showAsAction="never" android:title="@string/fix_manually"></item>
     
 
 </menu>

@@ -8,7 +8,10 @@ import org.farng.mp3.id3.AbstractID3v2;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,8 +22,9 @@ public class MPFileTagInfo extends FragmentActivity {
 	public EditText title_text, artist_text, album_text, year_text;
 	public Button save_button, cancel_button;
 
-	public void onCreate(Bundle arg0) {
-		super.onCreate(arg0);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_mpfile_info);
 		// initialize EditTexts and Buttons
 		title_text = (EditText) findViewById(R.id.song_edit_text);
 		artist_text = (EditText) findViewById(R.id.artist_edit_text);
@@ -28,6 +32,11 @@ public class MPFileTagInfo extends FragmentActivity {
 		year_text = (EditText) findViewById(R.id.year_edit_text);
 		save_button = (Button) findViewById(R.id.widget45);
 		cancel_button = (Button) findViewById(R.id.widget46);
+		if(save_button==null){
+			
+			Log.w("null","save_button");
+			
+		}
 		save_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
@@ -67,8 +76,10 @@ public class MPFileTagInfo extends FragmentActivity {
 			year_text.setText("");
 		}
 
-		setContentView(R.layout.activity_mpfile_info);
+		
 	}
+	
+	
 
 	public void onRestart() {
 		try {

@@ -11,13 +11,14 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme" 
-        android:label= "Music Tagger">
+        android:label="Music Tagger"
+        android:theme="@style/AppTheme" >
         <activity
-            android:uiOptions="splitActionBarWhenNarrow"
-            android:name="com.music.musictagger.MPFileListActivity" >
+            android:name="com.music.musictagger.MPFileListActivity"
+            android:uiOptions="splitActionBarWhenNarrow" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,6 +30,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MPFileListActivity" />
         </activity>
+        
+         <activity
+            android:name="com.music.musictagger.MPFileTagInfo"
+            android:label="Taginfo">
+             <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+         
+        </activity>
+     
     </application>
 
 </manifest>
