@@ -17,7 +17,6 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Checkable;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -55,6 +54,7 @@ public class MPFileListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
     
     private static ArrayAdapter adapter;
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -125,15 +125,21 @@ public class MPFileListFragment extends ListFragment {
 					fixDialog.setMessage("are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int id) {
-							Toast.makeText(getActivity(), "Fix Tag clicked",
-									Toast.LENGTH_SHORT).show();
 							Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
-							while (iterator.hasNext()) {
-								currentMP3 = iterator.next();
-								//                		TODO: currentMP3.fix();
-							} 
-							mode.finish();
-							
+							String a = null;
+							try{
+								a = MPFileListActivity.fix(currentMP3);
+								Toast.makeText(getActivity(), a,
+										Toast.LENGTH_SHORT).show();
+							}
+							catch(NullPointerException E)
+							{
+								E.printStackTrace();
+								System.out.println("This is the name:" + a);
+								Toast.makeText(getActivity(), "Life is a bitch",
+										Toast.LENGTH_SHORT).show();
+							}
+							mode.finish();							
 						}
 						})
 						.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -143,9 +149,8 @@ public class MPFileListFragment extends ListFragment {
 						});
 					fixDialog.create();
 					fixDialog.show();
-
-					
 					break;
+					
 				case R.id.delete:
 
 					AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
@@ -154,7 +159,6 @@ public class MPFileListFragment extends ListFragment {
 							Toast.makeText(getActivity(), "Delete clicked",
 									Toast.LENGTH_SHORT).show();
 							SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
-							int topPosition = checkedItems.keyAt(0) - 1;
 							int counter = 0;
 							for (int i = 0; i < checkedItems.size(); i++) {
 								if(checkedItems.valueAt(i)) {
@@ -162,18 +166,8 @@ public class MPFileListFragment extends ListFragment {
 									nr--;
 								}
 							}
-							adapter.notifyDataSetChanged();
-							getListView().clearChoices();
-							for (int i = 0; i < getListView().getChildCount(); i++) {
-								View c = getListView().getChildAt(i);
-								if (c instanceof Checkable) {
-									((Checkable) c).setChecked(false);
-								}
-							}
 							mode.finish();
-
 						}
-						
 					})
 					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
@@ -182,12 +176,6 @@ public class MPFileListFragment extends ListFragment {
 					});
 					deleteDialog.create();
 					deleteDialog.show();
-
-
-
-
-				
-
 					break;
 					}
 					return false;

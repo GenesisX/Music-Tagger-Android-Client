@@ -1,39 +1,128 @@
 package com.music.musictagger;
 
-import android.content.Context;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import org.cmc.music.common.ID3WriteException;
+import org.cmc.music.metadata.MusicMetadata;
+import org.cmc.music.metadata.MusicMetadataSet;
+import org.cmc.music.myid3.MyID3;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 
+import com.gracenote.mmid.MobileSDK.GNConfig;
+import com.gracenote.mmid.MobileSDK.GNOperations;
+import com.gracenote.mmid.MobileSDK.GNSearchResponse;
+import com.gracenote.mmid.MobileSDK.GNSearchResult;
+import com.gracenote.mmid.MobileSDK.GNSearchResultReady;
 import com.music.musictagger.mp3.MP3List;
-
+import com.music.musictagger.mp3.MP3List.MP3File;
 
 /**
- * An activity representing a list of MP3 Files. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link MPFileDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
+ * An activity representing a list of MP3 Files. This activity has different
+ * presentations for handset and tablet-size devices. On handsets, the activity
+ * presents a list of items, which when touched, lead to a
+ * {@link MPFileDetailActivity} representing item details. On tablets, the
+ * activity presents the list of items and item details side-by-side using two
+ * vertical panes.
  * <p>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link MPFileListFragment} and the item details
- * (if present) is a {@link MPFileDetailFragment}.
+ * {@link MPFileListFragment} and the item details (if present) is a
+ * {@link MPFileDetailFragment}.
  * <p>
  * This activity also implements the required
- * {@link MPFileListFragment.Callbacks} interface
- * to listen for item selections.
+ * {@link MPFileListFragment.Callbacks} interface to listen for item selections.
  */
-public class MPFileListActivity extends FragmentActivity
-        implements MPFileListFragment.Callbacks {
+public class MPFileListActivity extends FragmentActivity implements
+		MPFileListFragment.Callbacks {
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
+	/**
+	 * Whether or not the activity is in two-pane mode, i.e. running on a tablet
+	 * device.
+	 */
+	private boolean mTwoPane;
+	private static GNConfig config;
+	private static File mp3;
+	private static String filename, fileparent;
+	private static String title, artist, album;
+	private static GNSearchResult result;
+
+	// get tag info from a given MP3File
+	public static String fix(MP3File file) {
+		filename = file.getFilename();
+		fileparent = file.getParent();
+		title = file.getTitle();
+		mp3 = new File(fileparent + "/" + filename);
+		RecognizeFileOperation op = new RecognizeFileOperation();
+		GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/"
+				+ filename);
+		op.GNResultReady(result);
+
+		// try to print out album title
+		return result.getBestResponse().getAlbumTitle();
+	}
+
+	// container for metadata
+	private static class RecognizeFileOperation implements GNSearchResultReady {
+		@Override
+		public void GNResultReady(GNSearchResult result) {
+			if (result.isFingerprintSearchNoMatchStatus()) {
+				// TODO : return null
+			} else {
+				// fix
+				GNSearchResponse bestResponse = result.getBestResponse();
+				update(bestResponse);
+			}
+		}
+	}
+
+	// write metadata to file
+	private static void update(final GNSearchResponse bestResponse) {
+		title = bestResponse.getTrackTitle();
+		artist = bestResponse.getArtist();
+		album = bestResponse.getAlbumTitle();
+		MusicMetadataSet dataset = null;
+		String dstpath = fileparent + "/" + title + ".mp3";
+
+		File temp = new File(fileparent + "/temp.mp3");
+		try {
+			temp.createNewFile();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		MusicMetadata set = new MusicMetadata("new");
+		set.setSongTitle(title);
+		set.setArtist(artist);
+		set.setAlbum(album);
+
+		try {
+			dataset = new MyID3().read(mp3);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			new MyID3().write(mp3, temp, dataset, set);
+			mp3.delete();
+			temp.renameTo(new File(dstpath));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ID3WriteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +180,7 @@ public class MPFileListActivity extends FragmentActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
      MenuInflater menuInflater = getMenuInflater();
-           menuInflater.inflate(R.menu.menu, menu);
+           menuInflater.inflate(R.menu.list_menu, menu);
            return super.onCreateOptionsMenu(menu);
     }
 }
