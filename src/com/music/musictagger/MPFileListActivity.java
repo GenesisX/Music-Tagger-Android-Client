@@ -38,8 +38,10 @@ public class MPFileListActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	//search mp3 file under Galaxy S3 external sd card
-    	MP3List.searchDir("/mnt/extSdCard/");
-    	MP3List.searchDir("/sdcard");
+    	if(MP3List.ITEM_MAP.size() == 0){
+    		MP3List.searchDir("/mnt/extSdCard/");
+    		MP3List.searchDir("/sdcard");
+    	}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
 

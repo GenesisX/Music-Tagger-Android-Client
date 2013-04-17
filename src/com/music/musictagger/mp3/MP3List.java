@@ -112,9 +112,6 @@ public class MP3List {
         private String title,artist,album,track;
         private long totalTime;
         private File mp3;
-        private boolean isPrepared = false;
-        private MediaPlayer mediaPlayer;
-        private SeekBar seekBar;
         private byte[] album_art = null;
         private Context context;
 
@@ -123,20 +120,11 @@ public class MP3List {
             this.fileparent = fileparent;
             mp3 = new File(fileparent+"/"+filename);
             //use of mp3agic to retrive metadata etc
-            mediaPlayer = new MediaPlayer();
+            
     		initialize();
         }
 
         private void initialize (){
-        	try{
-    			FileInputStream fis = new FileInputStream(mp3);
-    			FileDescriptor fileDescriptor = fis.getFD();
-    			mediaPlayer.setDataSource(fileDescriptor);
-    			mediaPlayer.prepare();
-    			isPrepared = true;
-    			mediaPlayer.setOnCompletionListener(this);
-    			
- 			
     			//use mp3agic to retrieve tag info
                 try {
     				Mp3File mp3file = new Mp3File(mp3.getAbsolutePath());
@@ -156,9 +144,6 @@ public class MP3List {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
     			}
-    		} catch(Exception ex){
-    			throw new RuntimeException("Couldn't load music, uh oh!");
-    		}
         }
         
         /*use mp3agic to retrive id3v1 info* */
@@ -183,12 +168,7 @@ public class MP3List {
             	//TODO: handle here if image exist
             }
         }
-        public void seekTo(int mPosOverride){
-        	mediaPlayer.seekTo(mPosOverride);
-        }
-        public MediaPlayer getMP(){
-        	return mediaPlayer;
-        }
+
         public File getMusic(){
         	return mp3;
         }
@@ -224,64 +204,16 @@ public class MP3List {
         public String toString() {
             return filename;
         }
-        
 
-        public void switchTracks(){
-    		mediaPlayer.seekTo(0);
-    		mediaPlayer.pause();
-    	}
-        
-        public void pause(){
-        	if(mediaPlayer.isPlaying()){
-        		mediaPlayer.pause();
-        	}
-        }
-        
-        public void stop(){
-        	mediaPlayer.stop();
-    		synchronized(this){
-    			isPrepared = false;
-    		}
-        }
-        public void play(){
-        	if(mediaPlayer.isPlaying()){
-    			return;
-    		}
-    		try{
-    			synchronized(this){
-    				if(!isPrepared){
-    					//mediaPlayer.prepare();
-    					initialize();
-    				}
-    				mediaPlayer.start();
-    			}
-    		} catch(IllegalStateException ex){
-    			ex.printStackTrace();
-    		} 
-    			//catch(IOException ex){
-//    			ex.printStackTrace();
-//    		}	
-        }
-
-        public void dispose() {
-    		if(mediaPlayer.isPlaying()){
-    			//stop();
-    		}
-    		mediaPlayer.stop();
-    		mediaPlayer.reset();
-    		isPrepared = false;
-    		//mediaPlayer.release();
-    		
-    	}
 		@Override
-		public void onCompletion(MediaPlayer arg0) {
-			synchronized(this){
-				isPrepared = false;
-				mediaPlayer.reset();
-	    		//mediaPlayer.release();
-	    		
-			}
+		public void onCompletion(MediaPlayer mp) {
+			// TODO Auto-generated method stub
+			
 		}
+        
+
+
+
         
         // fixing tag
 /*        private GNConfig config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", context);

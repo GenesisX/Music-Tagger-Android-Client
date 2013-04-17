@@ -44,10 +44,10 @@
         android:paddingBottom="@dimen/audio_player_button_container_padding" >
 
         <ImageButton
-            android:id="@+id/audio_player_repeat"
+            android:id="@+id/audio_player_shuffle"
             style="@style/AudioPlayerButton"
-            android:contentDescription="@string/cd_repeat"
-            android:src="@drawable/apollo_holo_light_repeat_normal" />
+            android:contentDescription="@string/cd_shuffle"
+            android:src="@drawable/apollo_holo_light_shuffle_normal" />
         
         <ImageButton
             android:id="@+id/audio_player_prev"
@@ -70,10 +70,11 @@
             android:src="@drawable/apollo_holo_light_next" />
 
         <ImageButton
-            android:id="@+id/audio_player_shuffle"
+            android:id="@+id/audio_player_repeat"
             style="@style/AudioPlayerButton"
-            android:contentDescription="@string/cd_shuffle"
-            android:src="@drawable/apollo_holo_light_shuffle_normal" />
+            android:contentDescription="@string/cd_repeat"
+            android:src="@drawable/apollo_holo_light_repeat_normal" />
+        
     </LinearLayout>
 
 </merge>

@@ -1,8 +1,11 @@
 package com.music.musictagger;
 
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Random;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,11 +14,13 @@ import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,7 +30,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+
+
+
 
 
 import com.music.musictagger.mp3.MP3List;
@@ -45,6 +54,10 @@ public class MPFileDetailActivity extends FragmentActivity {
 	// Album art
 	private ImageView mAlbumArt;
 
+	//media player
+	private MediaPlayer mediaPlayer;
+	private boolean isPrepared = false;
+	
 	// Controls
 	private ImageButton mRepeat, mPlay, mShuffle, mPrev, mNext;
 	// Progress
@@ -53,7 +66,7 @@ public class MPFileDetailActivity extends FragmentActivity {
 	// Where we are in the track
 	private long mDuration, mLastSeekEventTime, mPosOverride = -1, mStartSeekPos = 0;
 
-	private boolean mFromTouch, paused = false;
+	private boolean mFromTouch, paused = false, shuffleOn = false, repeatOn = false;
 
 	// Handler
 	private static final int REFRESH = 1, UPDATEINFO = 2;
@@ -82,7 +95,7 @@ public class MPFileDetailActivity extends FragmentActivity {
     	//currentMP3.switchTrack();
         //init music info and play current music
         												
-
+    	//mediaPlayer = new MediaPlayer();
         isPlaying = true;
         
         mTrackName = (TextView)findViewById(R.id.audio_player_track);
@@ -96,6 +109,20 @@ public class MPFileDetailActivity extends FragmentActivity {
         mNext = (ImageButton)findViewById(R.id.audio_player_next);
         mShuffle = (ImageButton)findViewById(R.id.audio_player_shuffle);
        
+        mRepeat.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                cycleRepeat();
+            }
+        });
+        mShuffle.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                toggleShuffle();
+            }
+        });
         mPrev.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,11 +144,11 @@ public class MPFileDetailActivity extends FragmentActivity {
     					isPlaying = false;
     					//mPlay.setBackgroundResource(R.drawable.apollo_holo_light_play);
     					mPlay.setImageResource(R.drawable.apollo_holo_light_play);
-    					currentMP3.pause();
+    					pause();
     				} else{
     					isPlaying = true;
     					mPlay.setImageResource(R.drawable.apollo_holo_light_pause);
-    					currentMP3.play();
+    					play();
     				}
     			}
             }
@@ -133,7 +160,7 @@ public class MPFileDetailActivity extends FragmentActivity {
         mProgress = (SeekBar)findViewById(android.R.id.progress);
         if (mProgress instanceof SeekBar) {
             SeekBar seeker = mProgress;
-            //seeker.setOnSeekBarChangeListener(mSeekListener);
+           mProgress.setOnSeekBarChangeListener(mSeekListener); 
         }
         mProgress.setMax(1000);
         // Show the dummy content as text in a TextView.
@@ -144,55 +171,105 @@ public class MPFileDetailActivity extends FragmentActivity {
         
         //init musicInfo when first entered.
         updateMusicInfo();
-        
-        // Show the Up button in the action bar.
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        if (savedInstanceState == null) {
-//            // Create the detail fragment and add it to the activity
-//            // using a fragment transaction.
-//            Bundle arguments = new Bundle();
-//            arguments.putString(MPFileDetailFragment.ARG_ITEM_ID,
-//                    getIntent().getStringExtra(MPFileDetailFragment.ARG_ITEM_ID));
-//            MPFileDetailFragment fragment = new MPFileDetailFragment();
-//            fragment.setArguments(arguments);
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.mpfile_detail_container, fragment)
-//                    .commit();
-//        }
     }
     private void nextTrack(){
-    	Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
-    	while (iterator.hasNext()) {
-    		String tempName = iterator.next().getFilename();
-    		if(tempName.equals(mp3_id) && iterator.hasNext()){
-    			currentMP3.dispose();
-    			currentMP3 = iterator.next();
-    			mp3_id = currentMP3.getFilename();
-    			//mp3_id = currentMP3.getFilename();
-    			updateMusicInfo();
-    			break;
+    	if(shuffleOn){
+    		Random generator = new Random();
+    		Object[] values = MP3List.ITEM_MAP.values().toArray();
+    		MP3File randomValue = (MP3File) values[generator.nextInt(values.length)];
+    		while(randomValue.getFilename()==mp3_id){
+    			randomValue = (MP3File) values[generator.nextInt(values.length)];
     		}
+    		dispose();
+    		currentMP3 = randomValue;
+    		mp3_id = currentMP3.getFilename();
+			updateMusicInfo();
+    	}else{
+      		Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
+    		while (iterator.hasNext()) {
+    			MP3File tmp = iterator.next();
+    			String tempName = tmp.getFilename();
+    			if(tempName.equals(mp3_id) && iterator.hasNext()){
+    				dispose();
+    				currentMP3 = iterator.next();
+    				mp3_id = currentMP3.getFilename();
+    				updateMusicInfo();
+    				return;
+    			}
+    		}
+    		Toast.makeText(this, "Reached last track",
+    				Toast.LENGTH_SHORT).show();
     	}
     }
     private void prevTrack(){
-    	ListIterator<MP3List.MP3File> iterator = MP3List.ITEMS.listIterator(MP3List.ITEMS.size());
-    	while (iterator.hasPrevious()) {
-    		String tempName = iterator.previous().getFilename();
-    		if(tempName.equals(currentMP3.getFilename()) && iterator.hasPrevious()){
-    			currentMP3.dispose();
-    			currentMP3 = iterator.previous();
-    			mp3_id = currentMP3.getFilename();
-    			updateMusicInfo();
-    			break;
+    	if(shuffleOn){
+    		Random generator = new Random();
+    		Object[] values = MP3List.ITEM_MAP.values().toArray();
+    		MP3File randomValue = (MP3File) values[generator.nextInt(values.length)];
+    		while(randomValue.getFilename()==mp3_id){
+    			randomValue = (MP3File) values[generator.nextInt(values.length)];
     		}
+    		dispose();
+    		currentMP3 = randomValue;
+    		mp3_id = currentMP3.getFilename();
+    		updateMusicInfo();
+    	}else{
+    		
+    		ListIterator<MP3List.MP3File> iterator = MP3List.ITEMS.listIterator(MP3List.ITEMS.size());
+    		while (iterator.hasPrevious()) {
+    			String tempName = iterator.previous().getFilename();
+    			if(tempName.equals(currentMP3.getFilename()) && iterator.hasPrevious()){
+    				dispose();
+    				currentMP3 = iterator.previous();
+    				mp3_id = currentMP3.getFilename();
+    				updateMusicInfo();
+    				return;
+    			}
+    		}
+    		Toast.makeText(this, "Reached first track",
+    				Toast.LENGTH_SHORT).show();
     	}
     }
     
     //needed when new track is loaded
     private void updateMusicInfo(){
     	//TODO: add title, artist, cover image, time etc..
+    	mediaPlayer = new MediaPlayer();
+    	try{
+    		FileInputStream fis = new FileInputStream(currentMP3.getMusic());
+    		FileDescriptor fileDescriptor = fis.getFD();
+    		mediaPlayer.setDataSource(fileDescriptor);
+    		mediaPlayer.prepare();
+    		isPrepared = true;
+    	}catch(Exception e){
+    		//too lazy to do error handling
+    	}
+		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() 
+        {           
+            public void onCompletion(MediaPlayer mp) 
+            {
+            	isPrepared = false;
+    			mediaPlayer.reset();
+    			if(repeatOn){
+    				updateMusicInfo();
+    			}else{
+    				nextTrack();
+    			}
+            }           
+        });
+		mediaPlayer.setOnPreparedListener(new OnPreparedListener() {
+
+	        @Override
+	        public void onPrepared(MediaPlayer mp) {
+
+	            mProgress.setMax(mediaPlayer.getDuration());
+	            mProgress.postDelayed(onEverySecond, 1000);
+	        }
+	    });
     	mTrackName.setText(currentMP3.getTitle());  
+    	
+    	
     	mAlbumArtistName.setText(currentMP3.getAlbumArtist());
     	byte[] bmap = currentMP3.getArt();
     	if(bmap != null){
@@ -202,12 +279,12 @@ public class MPFileDetailActivity extends FragmentActivity {
     		mAlbumArt.setImageResource(R.drawable.default_album_art);
     	}
     	mTotalTime.setText(makeTimeString(currentMP3.getTotalTime()));
-    	mCurrentTime.setText(makeTimeString(0));
-    	//setSeekBar();
+    	mCurrentTime.setText(makeTimeString(0));  
     	mProgress.setProgress(0);
-    	mProgress.setMax((int)currentMP3.getTotalTime());
-    	mProgress.setOnSeekBarChangeListener(mSeekListener);    	
-    	currentMP3.play();
+    	//setSeekBar();
+    	//mProgress.setMax((int)currentMP3.getTotalTime());
+    	 	
+    	play();
     	isPlaying = true;
     }
     //helper function to format music length
@@ -222,42 +299,69 @@ public class MPFileDetailActivity extends FragmentActivity {
     	return Integer.toString(mins)+":"+Integer.toString(sec);
     }
     
+    private Runnable onEverySecond=new Runnable() {
+        @Override
+        public void run() {
+            if(mProgress != null) {
+                mProgress.setProgress(mediaPlayer.getCurrentPosition());
+                mCurrentTime.post(new Runnable() {
+					  @Override
+					  public void run() {
+						  mCurrentTime.setText(makeTimeString(mediaPlayer.getCurrentPosition()/1000));
+					  }
+				  });
+            }
+            if(isPlaying) {
+                mProgress.postDelayed(onEverySecond, 1000);
+            }
+
+        }
+    };
     //helper function to set seekbar
     public void setSeekBar(){
-    	MediaPlayer mediaPlayer = currentMP3.getMP();
 		mediaPlayer.setOnPreparedListener(new OnPreparedListener() 
         {
           @Override
           public void onPrepared(final MediaPlayer mp) 
           {
-        	  mProgress.setMax(mp.getDuration());
+        	  //mProgress.setMax(mp.getDuration());
         	  new Thread(new Runnable() {
 
         		  @Override
         		  public void run() {
-        			  while(mp!=null && mp.getCurrentPosition()<mp.getDuration())
-        			  {
-        				  mProgress.setProgress(mp.getCurrentPosition());
-        				  Message msg=new Message();
-        				  int millis = mp.getCurrentPosition();
-        				  mCurrentTime.setText(makeTimeString(millis/1000));
+        			  int currentPosition = 0;
+        			  int total = mp.getDuration();
+        			  mProgress.setMax(total);
+        			  while (mediaPlayer != null && currentPosition < total) {
+        				  try {
+        					  Thread.sleep(1000);
+        					  currentPosition = mp.getCurrentPosition();
+        				  } catch (InterruptedException e) {
+        					  return;
+        				  } catch (Exception e) {
+        					  return;
+        				  }
+        				  mProgress.setProgress(currentPosition);
+        				  mCurrentTime.post(new Runnable() {
+        					  @Override
+        					  public void run() {
+        						  mCurrentTime.setText(makeTimeString(mediaPlayer.getCurrentPosition()/1000));
+        					  }
+        				  });
         			  }
         		  }
         	  }).start();
-
           }
         }); 
     }
-    
-    
+    //seekbar listener
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
             // TODO Auto-generated method stub
             if (arg2 && isPlaying) {
-                //myProgress = oprogress;
-                currentMP3.seekTo(arg1*1000);
-                mCurrentTime.setText(makeTimeString(arg1));
+                mediaPlayer.seekTo(arg1);
+                mCurrentTime.setText(makeTimeString(arg1/1000));
             }
         }
 
@@ -271,6 +375,101 @@ public class MPFileDetailActivity extends FragmentActivity {
             // TODO Auto-generated method stub
         }
     };
+    
+    private void toggleShuffle() {
+        if(shuffleOn){
+        	mShuffle.setImageResource(R.drawable.apollo_holo_light_shuffle_normal);
+        	shuffleOn = false;
+        }else{
+        	mShuffle.setImageResource(R.drawable.apollo_holo_light_shuffle_on);
+        	shuffleOn = true;
+        }
+    }
+    
+    private void cycleRepeat(){
+    	if(repeatOn){
+    		mRepeat.setImageResource(R.drawable.apollo_holo_light_repeat_normal);
+    		repeatOn = false;
+    	}else{
+    		mRepeat.setImageResource(R.drawable.apollo_holo_light_repeat_all);
+    		repeatOn = true;
+    	}
+    }
+    
+    public void switchTracks(){
+		mediaPlayer.seekTo(0);
+		mediaPlayer.pause();
+	}
+    
+    public void pause(){
+    	if(mediaPlayer.isPlaying()){
+    		mediaPlayer.pause();
+    	}
+    }
+    
+    public void stop(){
+    	mediaPlayer.stop();
+		synchronized(this){
+			isPrepared = false;
+		}
+    }
+    public void play(){
+    	if(mediaPlayer.isPlaying()){
+			return;
+		}
+		try{
+			synchronized(this){
+				if(!isPrepared){
+					//mediaPlayer.prepare();
+					try{
+			    		FileInputStream fis = new FileInputStream(currentMP3.getMusic());
+			    		FileDescriptor fileDescriptor = fis.getFD();
+			    		mediaPlayer.setDataSource(fileDescriptor);
+			    		mediaPlayer.prepare();
+			    		isPrepared = true;
+			    	}catch(Exception e){
+			    		//too lazy to do error handling
+			    	}
+					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() 
+			        {           
+			            public void onCompletion(MediaPlayer mp) 
+			            {
+			            	isPrepared = false;
+			    			mediaPlayer.reset();
+			            	nextTrack();
+			            }           
+			        });
+				}
+				mediaPlayer.start();
+			}
+		} catch(IllegalStateException ex){
+			ex.printStackTrace();
+		} 
+			//catch(IOException ex){
+//			ex.printStackTrace();
+//		}	
+    }
+
+    public void dispose() {
+		if(mediaPlayer.isPlaying()){
+			//stop();
+		}
+		mediaPlayer.stop();
+		mediaPlayer.reset();
+		mediaPlayer = null;
+		isPlaying =false;
+		isPrepared = false;
+		//mediaPlayer.release();
+		
+	}
+    
+    @Override
+    public void onPause() {
+        if( mediaPlayer.isPlaying() ) {
+            mediaPlayer.stop();
+        }
+        super.onPause();
+    }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
