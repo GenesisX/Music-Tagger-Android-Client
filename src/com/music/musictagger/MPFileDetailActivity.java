@@ -491,9 +491,9 @@ public class MPFileDetailActivity extends FragmentActivity {
 		case R.id.fix_album:
 			Log.w("menu","fixalbum");
 			break;
-		
+
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
 

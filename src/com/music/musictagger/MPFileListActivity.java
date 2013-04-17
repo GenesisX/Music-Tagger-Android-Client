@@ -46,43 +46,42 @@ public class MPFileListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
-	private static GNConfig config;
-	private static File mp3;
-	private static String filename, fileparent;
-	private static String title, artist, album;
-	private static GNSearchResult result;
+/*	private GNConfig config;
+	private File mp3;
+	private String filename, fileparent;
+	private String title, artist, album;
+	private RecognizeFileOperation op;
+	private GNSearchResult result;
+	private GNSearchResponse bestResponse;
 
 	// get tag info from a given MP3File
-	public static String fix(MP3File file) {
-		filename = file.getFilename();
-		fileparent = file.getParent();
-		title = file.getTitle();
-		mp3 = new File(fileparent + "/" + filename);
-		RecognizeFileOperation op = new RecognizeFileOperation();
-		GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/"
-				+ filename);
+	private void fix() {
+		filename = "ccc.mp3";
+		fileparent = "/sdcard";
+		mp3 = new File("/sdcard/ccc.mp3");
+		op = new RecognizeFileOperation();
 		op.GNResultReady(result);
-
+		GNOperations.recognizeMIDFileFromFile(op, config, "/sdcard/ccc.mp3");
 		// try to print out album title
-		return result.getBestResponse().getAlbumTitle();
+//		return result.getBestResponse().getAlbumTitle();
 	}
 
 	// container for metadata
-	private static class RecognizeFileOperation implements GNSearchResultReady {
+	private class RecognizeFileOperation implements GNSearchResultReady {
 		@Override
 		public void GNResultReady(GNSearchResult result) {
 			if (result.isFingerprintSearchNoMatchStatus()) {
 				// TODO : return null
 			} else {
 				// fix
-				GNSearchResponse bestResponse = result.getBestResponse();
+				bestResponse = result.getBestResponse();
 				update(bestResponse);
 			}
 		}
 	}
 
 	// write metadata to file
-	private static void update(final GNSearchResponse bestResponse) {
+	private void update(final GNSearchResponse bestResponse) {
 		title = bestResponse.getTrackTitle();
 		artist = bestResponse.getArtist();
 		album = bestResponse.getAlbumTitle();
@@ -123,6 +122,7 @@ public class MPFileListActivity extends FragmentActivity implements
 			e.printStackTrace();
 		}
 	}
+	*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +133,7 @@ public class MPFileListActivity extends FragmentActivity implements
     	}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
-
+        
         if (findViewById(R.id.mpfile_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -141,6 +141,7 @@ public class MPFileListActivity extends FragmentActivity implements
             // activity should be in two-pane mode.
             mTwoPane = true;
 
+ 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
             ((MPFileListFragment) getSupportFragmentManager()
@@ -148,6 +149,8 @@ public class MPFileListActivity extends FragmentActivity implements
                     .setActivateOnItemClick(true);
         }
 
+
+//        fix();
         // TODO: If exposing deep links into your app, handle intents here.
     }
 

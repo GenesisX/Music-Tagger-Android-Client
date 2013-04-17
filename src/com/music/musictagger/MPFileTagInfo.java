@@ -9,9 +9,7 @@ import org.farng.mp3.id3.AbstractID3v2;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,9 +31,9 @@ public class MPFileTagInfo extends FragmentActivity {
 		save_button = (Button) findViewById(R.id.widget45);
 		cancel_button = (Button) findViewById(R.id.widget46);
 		if(save_button==null){
-			
+
 			Log.w("null","save_button");
-			
+
 		}
 		save_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -76,10 +74,8 @@ public class MPFileTagInfo extends FragmentActivity {
 			year_text.setText("");
 		}
 
-		
+
 	}
-	
-	
 
 	public void onRestart() {
 		try {

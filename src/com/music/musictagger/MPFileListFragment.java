@@ -1,6 +1,14 @@
 package com.music.musictagger;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
+
+import org.cmc.music.common.ID3WriteException;
+import org.cmc.music.metadata.MusicMetadata;
+import org.cmc.music.metadata.MusicMetadataSet;
+import org.cmc.music.myid3.MyID3;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +28,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.gracenote.mmid.MobileSDK.GNConfig;
+import com.gracenote.mmid.MobileSDK.GNOperations;
+import com.gracenote.mmid.MobileSDK.GNSearchResponse;
+import com.gracenote.mmid.MobileSDK.GNSearchResult;
+import com.gracenote.mmid.MobileSDK.GNSearchResultReady;
 import com.music.musictagger.mp3.MP3List;
 import com.music.musictagger.mp3.MP3List.MP3File;
 
@@ -35,6 +48,82 @@ import com.music.musictagger.mp3.MP3List.MP3File;
 public class MPFileListFragment extends ListFragment {
 
 	private static MP3File currentMP3;
+	// get tag info from a given MP3File
+	private GNConfig config;
+	private File mp3;
+	private String filename, fileparent;
+	private String title, artist, album;
+	private RecognizeFileOperation op;
+	private GNSearchResult result;
+	private GNSearchResponse bestResponse;
+
+	public void fix(MP3File file) {
+		filename = file.getFilename();
+		fileparent = file.getParent();
+//		System.out.println(fileparent+"/"+filename);
+		mp3 = new File(fileparent+"/"+filename);
+		RecognizeFileOperation op = new RecognizeFileOperation();
+		GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/"
+				+ filename);
+	}
+
+	// container for metadata
+	private class RecognizeFileOperation implements GNSearchResultReady {
+		@Override
+		public void GNResultReady(GNSearchResult result) {
+			if (result.isFailure()) {
+				// TODO : return null
+				System.out.println(result.getErrMessage());
+			} else {
+				// fix
+				GNSearchResponse bestResponse = result.getBestResponse();
+				update(bestResponse);
+			}
+		}
+	}
+
+	// write metadata to file
+	private void update(final GNSearchResponse bestResponse) {
+		title = bestResponse.getTrackTitle();
+		artist = bestResponse.getArtist();
+		album = bestResponse.getAlbumTitle();
+		MusicMetadataSet dataset = null;
+		String dstpath = fileparent + "/" + title + ".mp3";
+
+		File temp = new File(fileparent + "/temp.mp3");
+		try {
+			temp.createNewFile();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		MusicMetadata set = new MusicMetadata("new");
+		set.setSongTitle(title);
+		set.setArtist(artist);
+		set.setAlbum(album);
+
+		try {
+			dataset = new MyID3().read(mp3);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			new MyID3().write(mp3, temp, dataset, set);
+			mp3.delete();
+			temp.renameTo(new File(dstpath));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ID3WriteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -126,18 +215,20 @@ public class MPFileListFragment extends ListFragment {
 
 						public void onClick(DialogInterface dialog, int id) {
 							Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
-							String a = null;
+							while ( iterator.hasNext() )
+							{
 							try{
-								a = MPFileListActivity.fix(currentMP3);
-								Toast.makeText(getActivity(), a,
-										Toast.LENGTH_SHORT).show();
+								fix( iterator.next() );
+//								Toast.makeText(getActivity(), a,
+//										Toast.LENGTH_SHORT).show();
 							}
 							catch(NullPointerException E)
 							{
 								E.printStackTrace();
-								System.out.println("This is the name:" + a);
-								Toast.makeText(getActivity(), "Life is a bitch",
-										Toast.LENGTH_SHORT).show();
+//								System.out.println("This is the name:" + a);
+//								Toast.makeText(getActivity(), "Life is a bitch",
+//										Toast.LENGTH_SHORT).show();
+							}
 							}
 							mode.finish();							
 						}
@@ -163,6 +254,8 @@ public class MPFileListFragment extends ListFragment {
 							for (int i = 0; i < checkedItems.size(); i++) {
 								if(checkedItems.valueAt(i)) {
 									MP3List.ITEMS.remove(i-(counter++));
+									Toast.makeText(getActivity(), Integer.toString(i),
+											Toast.LENGTH_SHORT).show();
 									nr--;
 								}
 							}
@@ -210,6 +303,8 @@ public class MPFileListFragment extends ListFragment {
                 android.R.id.text1,
                 MP3List.ITEMS);
         setListAdapter(adapter);
+        
+        config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", getActivity().getApplicationContext());
     }
 
     @Override
