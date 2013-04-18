@@ -120,5 +120,6 @@
     <dimen name="four_by_two_height">180dp</dimen>
     <dimen name="four_by_two_control_height">55dp</dimen>
     <dimen name="four_by_two_album_art_width">135dp</dimen>
+    <dimen name="miniArt">30dp</dimen>
 
 </resources>

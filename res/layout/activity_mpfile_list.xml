@@ -1,10 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- <fragment xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!--     android:id="@+id/mpfile_list" -->
+<!--     android:name="com.music.musictagger.MPFileListFragment" -->
+<!--     android:layout_width="fill_parent" -->
+<!--     android:layout_height="fill_parent" -->
+<!--     android:orientation="vertical" > -->
+
+    
+<!--     <ListView android:id="@+id/list" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_height="fill_parent" /> -->
+ 
+<!-- </fragment> -->
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mpfile_list"
     android:name="com.music.musictagger.MPFileListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginLeft="@dimen/audio_player_button_container_padding"
+    android:layout_marginRight="@dimen/audio_player_button_container_padding"
     tools:context=".MPFileListActivity"
     tools:layout="@android:layout/list_content" />
+

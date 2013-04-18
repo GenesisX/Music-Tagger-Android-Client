@@ -302,7 +302,13 @@ public class MPFileListFragment extends ListFragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 MP3List.ITEMS);
-        setListAdapter(adapter);
+        
+        //setListAdapter(adapter);
+        MusicAdapter ma = new MusicAdapter(getActivity(),R.layout.list_item);
+        for(final MP3List.MP3File entry :MP3List.ITEMS) {
+        	ma.add(entry);
+        }
+        setListAdapter(ma);
         
         config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", getActivity().getApplicationContext());
     }

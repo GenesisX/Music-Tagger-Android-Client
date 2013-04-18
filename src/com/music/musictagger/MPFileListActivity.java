@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.ListView;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
 import com.gracenote.mmid.MobileSDK.GNOperations;
@@ -133,8 +134,8 @@ public class MPFileListActivity extends FragmentActivity implements
     	}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
-        
-        if (findViewById(R.id.mpfile_detail_container) != null) {
+		
+/*        if (findViewById(R.id.mpfile_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
@@ -147,7 +148,7 @@ public class MPFileListActivity extends FragmentActivity implements
             ((MPFileListFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.mpfile_list))
                     .setActivateOnItemClick(true);
-        }
+        }*/
 
 
 //        fix();

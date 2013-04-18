@@ -33,7 +33,7 @@ public class MP3List {
 	// searchDir("/sdcard");
 	// searchDir("/sdcard1");
 	// }
-
+	
 	private static void addItem(MP3File item) {
 		ITEMS.add(item);
 		ITEM_MAP.put(item.getTitle(), item);
@@ -78,8 +78,8 @@ public class MP3List {
 
 	public static class MP3File implements OnCompletionListener {
 		private TextView status;
-		private String filename, fileparent;
-		private String title, artist, album, track;
+		private String title, fileparent;
+		private String filename, artist, album, track;
 		private long totalTime;
 		private File mp3;
 		private byte[] album_art = null;
@@ -180,7 +180,7 @@ public class MP3List {
 
 		@Override
 		public String toString() {
-			return filename;
+			return title + "\n";
 		}
 
 		@Override
