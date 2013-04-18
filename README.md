@@ -23,6 +23,7 @@ Music-Tagger-Android-Client
 
 problems:
 	1. Automatically fixing doesn’t work (siyu)
-	2. List View no high light in multi-select (weiyizhen)
-	3. Delete map (xiaoran)
-	4. Resume, writing file crash and etc. (Jack)
+	2. Manually fixing layout problem (siyu)
+	3. List View no high light in multi-select (weiyizhen)
+	4. Delete map (xiaoran)
+	5. Resume, writing file crash and etc. (Jack)
