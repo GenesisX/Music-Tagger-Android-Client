@@ -3,6 +3,8 @@ package com.music.musictagger.mp3;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class MP3List {
 
 	private static void addItem(MP3File item) {
 		ITEMS.add(item);
-		ITEM_MAP.put(item.getTitle(), item);
+		ITEM_MAP.put(item.getFilename(), item);
 	}
 
 	public static boolean isValidFile(String path) {
@@ -45,6 +47,17 @@ public class MP3List {
 		return false;
 	}
 
+	
+	public static void sortByTitle(){
+		Collections.sort(MP3List.ITEMS, new TitleComparator());
+	}
+	public static void sortByArtist(){
+		Collections.sort(MP3List.ITEMS, new ArtistComparator());
+	}
+	public static void sortByAlbum(){
+		Collections.sort(MP3List.ITEMS, new AlbumComparator());
+	}
+	
 	public static void searchDir(String searchpath) {
 		String[] filenames;
 		String fileparent;
@@ -60,7 +73,7 @@ public class MP3List {
 			boolean hasFiles = false;
 			for (int i = 0; i < filenames.length; ++i) {
 				if (isValidFile(filenames[i])
-						&& !(ITEM_MAP.containsKey(filenames))) {
+						&& !(ITEM_MAP.containsKey(filenames[i]))) {
 					addItem(new MP3File(filenames[i], fileparent));
 				}
 			}
@@ -140,6 +153,7 @@ public class MP3List {
 			}
 		}
 
+
 		public File getMusic() {
 			return mp3;
 		}
@@ -217,6 +231,27 @@ public class MP3List {
 		public void onCompletion(MediaPlayer mp) {
 			// TODO Auto-generated method stub
 
+		}
+	}
+	public static class TitleComparator implements Comparator<MP3File> {
+		@Override
+		public int compare(MP3File arg0, MP3File arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getTitle().compareTo(arg1.getTitle());
+		}
+	}
+	private static class ArtistComparator implements Comparator<MP3File> {
+		@Override
+		public int compare(MP3File arg0, MP3File arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getArtist().compareTo(arg1.getArtist());
+		}
+	}
+	private static class AlbumComparator implements Comparator<MP3File> {
+		@Override
+		public int compare(MP3File arg0, MP3File arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getAlbum().compareTo(arg1.getAlbum());
 		}
 	}
 }

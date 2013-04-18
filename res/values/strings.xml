@@ -134,5 +134,8 @@
     <string name="fix_album_art">Fix Album Art</string>
     <string name="find_lyrics">Find Lyrics Online</string>
     <string name="fix_manually">Fix Manually</string>
+    <string name="sort_artist">Sort by artist</string>
+    <string name="sort_album">Sort by album</string>
+    <string name="sort_title">Sort by title</string>
 
 </resources>

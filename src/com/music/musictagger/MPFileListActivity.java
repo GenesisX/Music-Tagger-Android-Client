@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
@@ -103,10 +104,62 @@ public class MPFileListActivity extends FragmentActivity implements
         }
     }
 
-	@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-     MenuInflater menuInflater = getMenuInflater();
-           menuInflater.inflate(R.menu.list_menu, menu);
-           return super.onCreateOptionsMenu(menu);
+    	MenuInflater menuInflater = getMenuInflater();
+    	menuInflater.inflate(R.menu.list_menu, menu);
+    	return super.onCreateOptionsMenu(menu);
     }
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case R.id.sort_by_title:
+	            MP3List.sortByTitle();
+	            MPFileListFragment.musicAdapter.clear();
+	            for(final MP3List.MP3File entry :MP3List.ITEMS) {
+	            	MPFileListFragment.musicAdapter.add(entry);
+	            }
+	            
+	            MPFileListFragment.musicAdapter.notifyDataSetChanged();
+	            return true;
+	        case R.id.sort_by_artist:
+	        	MP3List.sortByArtist();
+	        	MPFileListFragment.musicAdapter.clear();
+	            for(final MP3List.MP3File entry :MP3List.ITEMS) {
+	            	MPFileListFragment.musicAdapter.add(entry);
+	            }
+	            
+	            MPFileListFragment.musicAdapter.notifyDataSetChanged();
+	        	//setAdapter();
+	            return true;
+	        case R.id.sort_by_album:
+	        	MP3List.sortByAlbum();
+	        	MPFileListFragment.musicAdapter.clear();
+	            for(final MP3List.MP3File entry :MP3List.ITEMS) {
+	            	MPFileListFragment.musicAdapter.add(entry);
+	            }
+	            
+	            MPFileListFragment.musicAdapter.notifyDataSetChanged();
+	        	//setAdapter();
+	            return true;
+	        case R.id.browse:
+	        	
+	        		MP3List.searchDir("/mnt/extSdCard/");
+	        		MP3List.searchDir("/sdcard");
+	        		MPFileListFragment.musicAdapter.clear();
+		            for(final MP3List.MP3File entry :MP3List.ITEMS) {
+		            	MPFileListFragment.musicAdapter.add(entry);
+		            }
+		            
+		            MPFileListFragment.musicAdapter.notifyDataSetChanged();
+	        	return true;
+	     }
+	    return super.onOptionsItemSelected(item);
+	}
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.list_menu, menu);
+		return;
+	}
+
 }
