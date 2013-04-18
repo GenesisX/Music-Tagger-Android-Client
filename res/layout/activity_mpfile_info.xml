@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<AbsoluteLayout
 	android:id="@+id/widget0"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
@@ -9,102 +9,104 @@
     android:id="@+id/widget46"
     android:layout_width="158dp"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:layout_alignRight="@+id/song_edit_text"
-    android:layout_marginBottom="29dp"
+    android:layout_marginTop="19dp"
+    android:layout_x="159dp"
+    android:layout_y="384dp"
     android:text="Cancel" />
-
-<TextView
-    android:id="@+id/widget38"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignLeft="@+id/year_edit_text"
-    android:layout_alignParentTop="true"
-    android:layout_marginLeft="15dp"
-    android:layout_marginTop="14dp"
-    android:text="Song" />
 
 <Button
     android:id="@+id/widget45"
     android:layout_width="163dp"
     android:layout_height="wrap_content"
-    android:layout_alignParentLeft="true"
-    android:layout_below="@+id/year_edit_text"
+    android:layout_marginTop="72dp"
+    android:layout_x="-1dp"
+    android:layout_y="384dp"
     android:text="Save" />
-
-<EditText
-    android:id="@+id/artist_edit_text"
-    android:layout_width="322dp"
-    android:layout_height="wrap_content"
-    android:layout_alignParentLeft="true"
-    android:layout_below="@+id/widget47"
-    android:layout_marginTop="22dp"
-    android:ems="10"
-    android:text="Muse"
-    android:textSize="18sp" />
-
-<TextView
-    android:id="@+id/widget42"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignLeft="@+id/widget38"
-    android:layout_below="@+id/artist_edit_text"
-    android:layout_marginTop="16dp"
-    android:text="Album" />
 
 <EditText
     android:id="@+id/song_edit_text"
     android:layout_width="319dp"
     android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
-    android:layout_below="@+id/widget38"
-    android:layout_marginTop="25dp"
+    android:layout_marginTop="15dp"
+    android:layout_x="-6dp"
+    android:layout_y="64dp"
     android:ems="10"
     android:text="Time is running out"
+    android:textSize="18sp" />
+
+<TextView
+    android:id="@+id/widget38"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="18dp"
+    android:layout_x="13dp"
+    android:layout_y="36dp"
+    android:text="Song" />
+
+<EditText
+    android:id="@+id/year_edit_text"
+    android:layout_width="318dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:layout_x="0dp"
+    android:layout_y="317dp"
+    android:ems="10"
+    android:text="2001"
     android:textSize="18sp" />
 
 <TextView
     android:id="@+id/widget44"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_above="@+id/year_edit_text"
-    android:layout_alignLeft="@+id/widget42"
-    android:layout_marginBottom="30dp"
+    android:layout_marginTop="14dp"
+    android:layout_x="16dp"
+    android:layout_y="281dp"
     android:text="Year" />
-
-<EditText
-    android:id="@+id/year_edit_text"
-    android:layout_width="318dp"
-    android:layout_height="wrap_content"
-    android:layout_above="@+id/widget46"
-    android:layout_alignParentRight="true"
-    android:layout_marginBottom="14dp"
-    android:ems="10"
-    android:text="2"
-    android:textSize="18sp" />
 
 <EditText
     android:id="@+id/album_edit_text"
     android:layout_width="320dp"
     android:layout_height="wrap_content"
-    android:layout_above="@+id/widget44"
-    android:layout_alignParentLeft="true"
+    android:layout_marginTop="71dp"
+    android:layout_x="0dp"
+    android:layout_y="231dp"
     android:ems="10"
     android:text="Absolute"
+    android:textSize="18sp" />
+
+<TextView
+    android:id="@+id/widget42"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="17dp"
+    android:layout_x="13dp"
+    android:layout_y="200dp"
+    android:text="Album" />
+
+<TextView
+    android:id="@+id/widget40"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="19dp"
+    android:layout_marginTop="22dp"
+    android:layout_x="10dp"
+    android:layout_y="110dp"
+    android:text="Artist" />
+
+<EditText
+    android:id="@+id/artist_edit_text"
+    android:layout_width="322dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="14dp"
+    android:layout_x="-2dp"
+    android:layout_y="142dp"
+    android:ems="10"
+    android:text="Muse"
     android:textSize="18sp" >
 
     <requestFocus />
 </EditText>
 
-<TextView
-    android:id="@+id/widget47"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignRight="@+id/widget38"
-    android:layout_below="@+id/song_edit_text"
-    android:layout_marginTop="14dp"
-    android:text="Artist" />
-
-</RelativeLayout>
+</AbsoluteLayout>
 
 

@@ -28,7 +28,10 @@ public class MPFileTagInfo extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_mpfile_info);
 		// initialize EditTexts and Buttons
+		
 		title_text = (EditText) findViewById(R.id.song_edit_text);
+		//debug
+		//System.out.println(R);
 		artist_text = (EditText) findViewById(R.id.artist_edit_text);
 		album_text = (EditText) findViewById(R.id.album_edit_text);
 		year_text = (EditText) findViewById(R.id.year_edit_text);
