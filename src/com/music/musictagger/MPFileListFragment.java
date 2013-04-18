@@ -289,6 +289,7 @@ public class MPFileListFragment extends ListFragment {
 					int position, long id, boolean checked) {
 				if (checked) {
 					nr++;
+					//musicAdapter.getView(position, convertView, parent)
 				} else {
 					nr--;
 				}
