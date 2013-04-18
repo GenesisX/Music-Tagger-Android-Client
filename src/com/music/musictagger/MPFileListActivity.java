@@ -47,83 +47,6 @@ public class MPFileListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
-/*	private GNConfig config;
-	private File mp3;
-	private String filename, fileparent;
-	private String title, artist, album;
-	private RecognizeFileOperation op;
-	private GNSearchResult result;
-	private GNSearchResponse bestResponse;
-
-	// get tag info from a given MP3File
-	private void fix() {
-		filename = "ccc.mp3";
-		fileparent = "/sdcard";
-		mp3 = new File("/sdcard/ccc.mp3");
-		op = new RecognizeFileOperation();
-		op.GNResultReady(result);
-		GNOperations.recognizeMIDFileFromFile(op, config, "/sdcard/ccc.mp3");
-		// try to print out album title
-//		return result.getBestResponse().getAlbumTitle();
-	}
-
-	// container for metadata
-	private class RecognizeFileOperation implements GNSearchResultReady {
-		@Override
-		public void GNResultReady(GNSearchResult result) {
-			if (result.isFingerprintSearchNoMatchStatus()) {
-				// TODO : return null
-			} else {
-				// fix
-				bestResponse = result.getBestResponse();
-				update(bestResponse);
-			}
-		}
-	}
-
-	// write metadata to file
-	private void update(final GNSearchResponse bestResponse) {
-		title = bestResponse.getTrackTitle();
-		artist = bestResponse.getArtist();
-		album = bestResponse.getAlbumTitle();
-		MusicMetadataSet dataset = null;
-		String dstpath = fileparent + "/" + title + ".mp3";
-
-		File temp = new File(fileparent + "/temp.mp3");
-		try {
-			temp.createNewFile();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		MusicMetadata set = new MusicMetadata("new");
-		set.setSongTitle(title);
-		set.setArtist(artist);
-		set.setAlbum(album);
-
-		try {
-			dataset = new MyID3().read(mp3);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			new MyID3().write(mp3, temp, dataset, set);
-			mp3.delete();
-			temp.renameTo(new File(dstpath));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ID3WriteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,8 +57,8 @@ public class MPFileListActivity extends FragmentActivity implements
     	}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
-		
-/*        if (findViewById(R.id.mpfile_detail_container) != null) {
+        
+/*		if (findViewById(R.id.mpfile_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
@@ -150,8 +73,6 @@ public class MPFileListActivity extends FragmentActivity implements
                     .setActivateOnItemClick(true);
         }*/
 
-
-//        fix();
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
@@ -181,7 +102,8 @@ public class MPFileListActivity extends FragmentActivity implements
             startActivity(detailIntent);
         }
     }
-    @Override
+
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
      MenuInflater menuInflater = getMenuInflater();
            menuInflater.inflate(R.menu.list_menu, menu);

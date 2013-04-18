@@ -22,4 +22,3 @@
     android:layout_marginRight="@dimen/audio_player_button_container_padding"
     tools:context=".MPFileListActivity"
     tools:layout="@android:layout/list_content" />
-

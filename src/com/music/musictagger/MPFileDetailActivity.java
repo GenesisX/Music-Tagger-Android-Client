@@ -264,7 +264,6 @@ public class MPFileDetailActivity extends FragmentActivity {
 			}
 		});
 		mTrackName.setText(currentMP3.getTitle());
-
 		mAlbumArtistName.setText(currentMP3.getAlbumArtist());
 		byte[] bmap = currentMP3.getArt();
 		if (bmap != null) {
@@ -476,7 +475,7 @@ public class MPFileDetailActivity extends FragmentActivity {
 		case android.R.id.home:
 			NavUtils.navigateUpTo(this, new Intent(this,
 					MPFileListActivity.class));
-			//		break;
+					break;
 		case R.id.fix_manually:
 				Log.w("menu","fix manually");
 				Intent nextActivity = new Intent(this, MPFileTagInfo.class);
@@ -503,6 +502,14 @@ public class MPFileDetailActivity extends FragmentActivity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.player_menu, menu);
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mTrackName.setText(currentMP3.getTitle());
+		mAlbumArtistName.setText(currentMP3.getAlbumArtist());
+		mTotalTime.setText(makeTimeString(currentMP3.getTotalTime()));
 	}
 
 }

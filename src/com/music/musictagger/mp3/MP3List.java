@@ -33,7 +33,7 @@ public class MP3List {
 	// searchDir("/sdcard");
 	// searchDir("/sdcard1");
 	// }
-	
+
 	private static void addItem(MP3File item) {
 		ITEMS.add(item);
 		ITEM_MAP.put(item.getTitle(), item);
@@ -79,7 +79,7 @@ public class MP3List {
 	public static class MP3File implements OnCompletionListener {
 		private TextView status;
 		private String title, fileparent;
-		private String filename, artist, album, track;
+		private String filename, artist, album, track, year;
 		private long totalTime;
 		private File mp3;
 		private byte[] album_art = null;
@@ -120,6 +120,7 @@ public class MP3List {
 
 			ID3v1 id3v1Tag = mp3file.getId3v1Tag();
 			this.track = id3v1Tag.getTrack();
+			this.year = id3v1Tag.getYear();
 			this.artist = id3v1Tag.getArtist();
 			this.title = id3v1Tag.getTitle();
 			this.album = id3v1Tag.getAlbum();
@@ -129,6 +130,7 @@ public class MP3List {
 
 			ID3v2 id3v2Tag = mp3file.getId3v2Tag();
 			this.track = id3v2Tag.getTrack();
+			this.year = id3v2Tag.getYear();
 			this.artist = id3v2Tag.getArtist();
 			this.title = id3v2Tag.getTitle();
 			this.album = id3v2Tag.getAlbum();
@@ -142,12 +144,28 @@ public class MP3List {
 			return mp3;
 		}
 
+		public String getParent() {
+			return this.fileparent;
+		}
+
 		public String getFilename() {
-			return filename;
+			return this.filename;
 		}
 
 		public String getTitle() {
 			return this.title;
+		}
+		
+		public String getArtist() {
+			return this.artist;
+		}
+		
+		public String getAlbum() {
+			return this.album;
+		}
+		
+		public String getYear() {
+			return this.year;
 		}
 
 		public long getTotalTime() {
@@ -161,26 +179,38 @@ public class MP3List {
 		public byte[] getArt() {
 			return this.album_art;
 		}
+		
+		public void setMusic(String parent, String name) {
+			this.mp3 = new File(parent, name);
+		}
+
+		public void setParent(String fileparent) {
+			this.fileparent = fileparent;
+		}
+
+		public void setName(String name) {
+			this.filename = name;
+		}
 
 		public void setTitle(String title) {
 			this.title = title;
 		}
-
-		public void setName(String path) {
-			this.filename = path;
+		
+		public void setArtist(String artist) {
+			this.artist = artist;
 		}
-
-		public String getParent() {
-			return this.fileparent;
+		
+		public void setAlbum(String album) {
+			this.album = album;
 		}
-
-		public void setParent(String parent) {
-			this.fileparent = parent;
+		
+		public void setYear(String year) {
+			this.year = year;
 		}
 
 		@Override
 		public String toString() {
-			return title + "\n";
+			return title + "\n" ;
 		}
 
 		@Override

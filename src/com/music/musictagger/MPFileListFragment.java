@@ -54,15 +54,12 @@ public class MPFileListFragment extends ListFragment {
 	private String filename, fileparent;
 	private String title, artist, album;
 	private RecognizeFileOperation op;
-	private GNSearchResult result;
-	private GNSearchResponse bestResponse;
 
 	public void fix(MP3File file) {
 		filename = file.getFilename();
 		fileparent = file.getParent();
-//		System.out.println(fileparent+"/"+filename);
 		mp3 = new File(fileparent+"/"+filename);
-		RecognizeFileOperation op = new RecognizeFileOperation();
+		op = new RecognizeFileOperation();
 		GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/"
 				+ filename);
 	}
@@ -76,8 +73,7 @@ public class MPFileListFragment extends ListFragment {
 				System.out.println(result.getErrMessage());
 			} else {
 				// fix
-				GNSearchResponse bestResponse = result.getBestResponse();
-				update(bestResponse);
+				update(result.getBestResponse());
 			}
 		}
 	}
@@ -123,6 +119,9 @@ public class MPFileListFragment extends ListFragment {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		Toast.makeText(getActivity(), "Done", Toast.LENGTH_SHORT).show();
+
 	}
 	
     /**
@@ -247,17 +246,9 @@ public class MPFileListFragment extends ListFragment {
 					AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
 					deleteDialog.setMessage("are you sure to delete?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							Toast.makeText(getActivity(), "Delete clicked",
-									Toast.LENGTH_SHORT).show();
 							SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
-							int counter = 0;
-							for (int i = 0; i < checkedItems.size(); i++) {
-								if(checkedItems.valueAt(i)) {
-									MP3List.ITEMS.remove(i-(counter++));
-									Toast.makeText(getActivity(), Integer.toString(i),
-											Toast.LENGTH_SHORT).show();
-									nr--;
-								}
+							for (int i = getListView().getCheckedItemCount() - 1; i >= 0; --i) {
+								MP3List.ITEMS.remove(getListView().getCheckedItemPositions().keyAt(i));
 							}
 							mode.finish();
 						}
@@ -302,14 +293,12 @@ public class MPFileListFragment extends ListFragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 MP3List.ITEMS);
-        
         //setListAdapter(adapter);
         MusicAdapter ma = new MusicAdapter(getActivity(),R.layout.list_item);
         for(final MP3List.MP3File entry :MP3List.ITEMS) {
         	ma.add(entry);
         }
         setListAdapter(ma);
-        
         config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", getActivity().getApplicationContext());
     }
 
