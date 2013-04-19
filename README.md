@@ -8,7 +8,8 @@ Music-Tagger-Android-Client
 	1. Player won't play in the back
 	2. Still need to refresh manually after fixing tag automatically
 	3. Duplicates generated when fixing tags
-	4. 乱码。。
+	4. ID3v2有时候返回乱码
+	5. 乱码。。
 
 1. Browse:  Browse from a given path in list view (肖然)
 ===========================
