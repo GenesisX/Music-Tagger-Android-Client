@@ -6,10 +6,8 @@ Music-Tagger-Android-Client
 0. current problems:
 ===========================
 	1. Player won't play in the back
-	2. Still need to refresh manually after fixing tag automatically
-	3. Duplicates generated when fixing tags
-	4. ID3v2有时候返回乱码
-	5. 乱码。。
+	2. Duplicate files generated when fixing tags ( Problem with farng's API )
+	3. 手动修改(ID3v2)有时候返回乱码，ID3v1直接崩溃
 
 1. Browse:  Browse from a given path in list view (肖然)
 ===========================
@@ -22,11 +20,10 @@ Music-Tagger-Android-Client
 	Things to consider:
 		How to store music info back when user changed files while the app is not running
 
-2. Fix album art & lyrics (陈司明)
+2. Fix album art & lyrics ( Anyone knows how to write album art and lyrics into file? )
 ===========================
 	Required knowledge:
-		Gracenote
-		farng
+		i don't know
 
 3. PC socket ( 王律哲 + Anyone? )
 ===========================
@@ -34,22 +31,8 @@ Music-Tagger-Android-Client
 		Java Socket
 		Android Cliente
 
-4. Resume ( Anyone? )
-===========================
-	Things to implement:
-		refresh data when getting back from fixing auto/manually
-	Required knowledge:
-		onResume()
-
-5. Respond to user with AsyncTask while fixing ( Anyone? )
-===========================
-	Things to implement:
-		AsyncTask
-	Reuiqred knowledge:
-		AsyncTask
-
-6. Powerpoint for demo ( 司宇? )
+4. Demo ( 司宇? )
 ===========================
 
-7. Add more...
+5. Add more...
 ===========================
