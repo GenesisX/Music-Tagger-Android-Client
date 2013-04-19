@@ -5,9 +5,9 @@ Music-Tagger-Android-Client
 
 0. current problems:
 ===========================
-	1. "Manually fixing" layout doesn't fit (司宇)
-	2. Crashes when writing files (陈司明)
-	3. Nothing has been updated when switching between layouts ( Anyone? )
+	1. Player won't play in the back
+	2. Still need to refresh manually after fixing tag automatically
+	3. Duplicates generated when fixing tags
 
 1. Browse:  Browse from a given path in list view (肖然)
 ===========================
@@ -20,13 +20,11 @@ Music-Tagger-Android-Client
 	Things to consider:
 		How to store music info back when user changed files while the app is not running
 
-2. Main core: Using gracenote’s api to fix tags (陈司明)
+2. Fix album art & lyrics (陈司明)
 ===========================
-	Things to implement:
-		Fix tags
-		Write tags
 	Required knowledge:
 		Gracenote
+		farng
 
 3. PC socket ( 王律哲 + Anyone? )
 ===========================
