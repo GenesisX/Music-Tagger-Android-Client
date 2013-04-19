@@ -25,7 +25,7 @@ Music-Tagger-Android-Client
 	Required knowledge:
 		i don't know
 
-3. PC socket ( 王律哲 + Anyone? )
+3. PC socket ( 王律哲 + 肖然? )
 ===========================
 	Things to implement:
 		Java Socket
