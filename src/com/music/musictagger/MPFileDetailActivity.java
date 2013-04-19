@@ -443,30 +443,16 @@ public class MPFileDetailActivity extends FragmentActivity {
 		} catch (IllegalStateException ex) {
 			ex.printStackTrace();
 		}
-		// catch(IOException ex){
-		// ex.printStackTrace();
-		// }
 	}
 
 	public void dispose() {
 		if (mediaPlayer.isPlaying()) {
-			// stop();
 		}
 		mediaPlayer.stop();
 		mediaPlayer.reset();
 		mediaPlayer = null;
 		isPlaying = false;
 		isPrepared = false;
-		// mediaPlayer.release();
-
-	}
-
-	@Override
-	public void onPause() {
-		if (mediaPlayer.isPlaying()) {
-			mediaPlayer.stop();
-		}
-		super.onPause();
 	}
 
 	@Override
@@ -498,10 +484,17 @@ public class MPFileDetailActivity extends FragmentActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.player_menu, menu);
 		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mediaPlayer.isPlaying()) {
+			mediaPlayer.stop();
+		}
 	}
 
 	@Override

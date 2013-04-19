@@ -1,112 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<AbsoluteLayout
-	android:id="@+id/widget0"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget0"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-<Button
-    android:id="@+id/widget46"
-    android:layout_width="158dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="19dp"
-    android:layout_x="159dp"
-    android:layout_y="384dp"
-    android:text="Cancel" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
-<Button
-    android:id="@+id/widget45"
-    android:layout_width="163dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="72dp"
-    android:layout_x="-1dp"
-    android:layout_y="384dp"
-    android:text="Save" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10sp"
+            android:layout_marginRight="10sp"
+            android:orientation="vertical" >
 
-<EditText
-    android:id="@+id/song_edit_text"
-    android:layout_width="319dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="15dp"
-    android:layout_x="-6dp"
-    android:layout_y="64dp"
-    android:ems="10"
-    android:text="Time is running out"
-    android:textSize="18sp" />
+            <TextView
+                android:id="@+id/widget38"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Song"
+                android:textSize="18sp" />
 
-<TextView
-    android:id="@+id/widget38"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="18dp"
-    android:layout_x="13dp"
-    android:layout_y="36dp"
-    android:text="Song" />
+            <EditText
+                android:id="@+id/song_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:text="Time is running out"
+                android:textSize="18sp" />
 
-<EditText
-    android:id="@+id/year_edit_text"
-    android:layout_width="318dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    android:layout_x="0dp"
-    android:layout_y="317dp"
-    android:ems="10"
-    android:text="2001"
-    android:textSize="18sp" />
+            <TextView
+                android:id="@+id/widget40"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Artist"
+                android:textSize="18sp" />
 
-<TextView
-    android:id="@+id/widget44"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="14dp"
-    android:layout_x="16dp"
-    android:layout_y="281dp"
-    android:text="Year" />
+            <EditText
+                android:id="@+id/artist_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:text="Muse"
+                android:textSize="18sp" />
 
-<EditText
-    android:id="@+id/album_edit_text"
-    android:layout_width="320dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="71dp"
-    android:layout_x="0dp"
-    android:layout_y="231dp"
-    android:ems="10"
-    android:text="Absolute"
-    android:textSize="18sp" />
+            <TextView
+                android:id="@+id/widget42"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Album"
+                android:textSize="18sp" />
 
-<TextView
-    android:id="@+id/widget42"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="17dp"
-    android:layout_x="13dp"
-    android:layout_y="200dp"
-    android:text="Album" />
+            <EditText
+                android:id="@+id/album_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:text="Absolute"
+                android:textSize="18sp" />
 
-<TextView
-    android:id="@+id/widget40"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="19dp"
-    android:layout_marginTop="22dp"
-    android:layout_x="10dp"
-    android:layout_y="110dp"
-    android:text="Artist" />
+            <TextView
+                android:id="@+id/widget44"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Year"
+                android:textSize="18sp" />
 
-<EditText
-    android:id="@+id/artist_edit_text"
-    android:layout_width="322dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="14dp"
-    android:layout_x="-2dp"
-    android:layout_y="142dp"
-    android:ems="10"
-    android:text="Muse"
-    android:textSize="18sp" >
+            <EditText
+                android:id="@+id/year_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:text="2001"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-    <requestFocus />
-</EditText>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10sp"
+            android:layout_weight="1.0"
+            android:orientation="horizontal"
+            android:paddingBottom="1sp"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:paddingTop="5sp" >
 
-</AbsoluteLayout>
+            <Button
+                android:id="@+id/widget45"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:text="Save"
+                android:textSize="16sp" />
 
+            <Button
+                android:id="@+id/widget46"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:text="Cancel"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
 
+</ScrollView>

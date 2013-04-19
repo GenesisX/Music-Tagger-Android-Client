@@ -1,14 +1,10 @@
 package com.music.musictagger;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Iterator;
 
-import org.cmc.music.common.ID3WriteException;
-import org.cmc.music.metadata.MusicMetadata;
-import org.cmc.music.metadata.MusicMetadataSet;
-import org.cmc.music.myid3.MyID3;
+import org.farng.mp3.MP3File;
+import org.farng.mp3.TagException;
+import org.farng.mp3.id3.AbstractID3v2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,7 +31,6 @@ import com.gracenote.mmid.MobileSDK.GNSearchResponse;
 import com.gracenote.mmid.MobileSDK.GNSearchResult;
 import com.gracenote.mmid.MobileSDK.GNSearchResultReady;
 import com.music.musictagger.mp3.MP3List;
-import com.music.musictagger.mp3.MP3List.MP3File;
 
 /**
  * A list fragment representing a list of MP3 Files. This fragment
@@ -44,85 +39,92 @@ import com.music.musictagger.mp3.MP3List.MP3File;
  * currently being viewed in a {@link MPFileDetailFragment}.
  * <p>
  * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
+ * interface.*
  */
 public class MPFileListFragment extends ListFragment {
 
-	private static MP3File currentMP3;
-	// get tag info from a given MP3File
 	private GNConfig config;
-	private File mp3;
 	private String filename, fileparent;
-	private String title, artist, album;
+	private String title, artist, album, year;
 	private RecognizeFileOperation op;
+	private SparseBooleanArray checkedItems;
 
-	public void fix(MP3File file) {
-		filename = file.getFilename();
-		fileparent = file.getParent();
-		mp3 = new File(fileparent+"/"+filename);
-		op = new RecognizeFileOperation();
-		GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/"
-				+ filename);
+	public void fix() throws IOException, TagException {	
+		for (int i = 0; i < getListView().getCheckedItemCount(); i++) {
+			int index = checkedItems.keyAt(i);
+			// TODO : fix map
+//			MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
+//			MP3List.ITEMS.remove(index);
+			filename = MP3List.ITEMS.get(index).getFilename();
+			fileparent = MP3List.ITEMS.get(index).getParent();
+			op = new RecognizeFileOperation(index);
+			GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/" + filename);
+		}
+		
+		new ArrayAdapter<MP3List.MP3File>(
+				getActivity(),
+				android.R.layout.simple_list_item_activated_1,
+				android.R.id.text1,
+				MP3List.ITEMS);
+		
+		musicAdapter = new MusicAdapter(getActivity(),R.layout.list_item);
+		for(final MP3List.MP3File entry :MP3List.ITEMS) {
+			musicAdapter.add(entry);
+		}
+		setListAdapter(musicAdapter);
+		musicAdapter.notifyDataSetChanged();
+		
 	}
 
 	// container for metadata
 	private class RecognizeFileOperation implements GNSearchResultReady {
+		
+		private MP3File mp3;
+		private AbstractID3v2 id3v2tag;
+		private GNSearchResponse bestResponse;
+		private int index;
+		
+		public RecognizeFileOperation( int index ) throws IOException, TagException {
+			this.index = index;
+			this.mp3 = new MP3File(MP3List.ITEMS.get(index).getMusic());
+		}
+		
 		@Override
 		public void GNResultReady(GNSearchResult result) {
 			if (result.isFailure()) {
-				// TODO : return null
+				// TODO : return error message
 				System.out.println(result.getErrMessage());
 			} else {
 				// fix
-				update(result.getBestResponse());
+				id3v2tag = mp3.getID3v2Tag();
+				bestResponse = result.getBestResponse();
+				title = bestResponse.getTrackTitle();
+				artist = bestResponse.getArtist();
+				album = bestResponse.getAlbumTitle();
+				year = bestResponse.getAlbumReleaseYear();
+				
+				id3v2tag.setSongTitle(title);
+				id3v2tag.setLeadArtist(artist);
+				id3v2tag.setAlbumTitle(album);
+				id3v2tag.setYearReleased(year);
+				MP3List.ITEMS.get(index).setTitle(title);
+				MP3List.ITEMS.get(index).setArtist(artist);
+				MP3List.ITEMS.get(index).setAlbum(album);
+				MP3List.ITEMS.get(index).setYear(year);
+				mp3.setID3v1Tag(id3v2tag);
+				mp3.setID3v2Tag(id3v2tag);
+				
+				try {
+					mp3.save();
+				} catch (TagException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				Toast.makeText(getActivity(), "Done", Toast.LENGTH_SHORT).show();
 			}
 		}
-	}
-
-	// write metadata to file
-	private void update(final GNSearchResponse bestResponse) {
-		title = bestResponse.getTrackTitle();
-		artist = bestResponse.getArtist();
-		album = bestResponse.getAlbumTitle();
-		MusicMetadataSet dataset = null;
-		String dstpath = fileparent + "/" + title + ".mp3";
-
-		File temp = new File(fileparent + "/temp.mp3");
-		try {
-			temp.createNewFile();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		MusicMetadata set = new MusicMetadata("new");
-		set.setSongTitle(title);
-		set.setArtist(artist);
-		set.setAlbum(album);
-
-		try {
-			dataset = new MyID3().read(mp3);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			new MyID3().write(mp3, temp, dataset, set);
-			mp3.delete();
-			temp.renameTo(new File(dstpath));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ID3WriteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		Toast.makeText(getActivity(), "Done", Toast.LENGTH_SHORT).show();
-
 	}
 
 	/**
@@ -142,7 +144,6 @@ public class MPFileListFragment extends ListFragment {
 	 */
 	private int mActivatedPosition = ListView.INVALID_POSITION;
 
-	private static ArrayAdapter adapter;
 	public static MusicAdapter musicAdapter;
 
 	/**
@@ -220,28 +221,21 @@ public class MPFileListFragment extends ListFragment {
 					fixDialog.setMessage("are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int id) {
-							Iterator<MP3List.MP3File> iterator = MP3List.ITEMS.iterator();
-							while ( iterator.hasNext() )
-							{
-								try{
-									fix( iterator.next() );
-									//								Toast.makeText(getActivity(), a,
-									//										Toast.LENGTH_SHORT).show();
-								}
-								catch(NullPointerException E)
-								{
-									E.printStackTrace();
-									//								System.out.println("This is the name:" + a);
-									//								Toast.makeText(getActivity(), "Life is a bitch",
-									//										Toast.LENGTH_SHORT).show();
-								}
+							checkedItems = getListView().getCheckedItemPositions();
+							try {
+								fix();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (TagException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 							mode.finish();							
 						}
 					})
 					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							// user canceled 
 						}
 					});
 					fixDialog.create();
@@ -253,9 +247,9 @@ public class MPFileListFragment extends ListFragment {
 					AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
 					deleteDialog.setMessage("are you sure to delete?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							SparseBooleanArray checkedItems = getListView().getCheckedItemPositions();
+							checkedItems = getListView().getCheckedItemPositions();
 							for (int i = getListView().getCheckedItemCount() - 1; i >= 0; --i) {
-								int index = getListView().getCheckedItemPositions().keyAt(i);
+								int index = checkedItems.keyAt(i);
 								MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
 								MP3List.ITEMS.remove(index);
 							}
@@ -269,7 +263,6 @@ public class MPFileListFragment extends ListFragment {
 					})
 					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
-							//user canceled
 						}
 					});
 					deleteDialog.create();
@@ -289,7 +282,6 @@ public class MPFileListFragment extends ListFragment {
 					int position, long id, boolean checked) {
 				if (checked) {
 					nr++;
-					//musicAdapter.getView(position, convertView, parent)
 				} else {
 					nr--;
 				}
@@ -302,18 +294,18 @@ public class MPFileListFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// TODO: replace with a real list adapter.
-		adapter = new ArrayAdapter<MP3List.MP3File>(
+		new ArrayAdapter<MP3List.MP3File>(
 				getActivity(),
 				android.R.layout.simple_list_item_activated_1,
 				android.R.id.text1,
 				MP3List.ITEMS);
-		//setListAdapter(adapter);
+		
 		musicAdapter = new MusicAdapter(getActivity(),R.layout.list_item);
 		for(final MP3List.MP3File entry :MP3List.ITEMS) {
 			musicAdapter.add(entry);
 		}
 		setListAdapter(musicAdapter);
+		
 		config = GNConfig.init("224512-544A82B56BFA252D79DDD53B4EC00ED3", getActivity().getApplicationContext());
 	}
 
@@ -366,6 +358,22 @@ public class MPFileListFragment extends ListFragment {
 			// Serialize and persist the activated item position.
 			outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
 		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();		
+		new ArrayAdapter<MP3List.MP3File>(
+				getActivity(),
+				android.R.layout.simple_list_item_activated_1,
+				android.R.id.text1,
+				MP3List.ITEMS);
+		
+		musicAdapter = new MusicAdapter(getActivity(),R.layout.list_item);
+		for(final MP3List.MP3File entry :MP3List.ITEMS) {
+			musicAdapter.add(entry);
+		}
+		setListAdapter(musicAdapter);
 	}
 
 	/**

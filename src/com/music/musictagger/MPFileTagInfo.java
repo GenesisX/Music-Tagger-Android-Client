@@ -1,14 +1,10 @@
 package com.music.musictagger;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
-import org.cmc.music.common.ID3WriteException;
-import org.cmc.music.metadata.IMusicMetadata;
-import org.cmc.music.metadata.MusicMetadata;
-import org.cmc.music.metadata.MusicMetadataSet;
-import org.cmc.music.myid3.MyID3;
+import org.farng.mp3.MP3File;
+import org.farng.mp3.TagException;
+import org.farng.mp3.id3.AbstractID3v2;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -18,81 +14,59 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class MPFileTagInfo extends Activity {
-	private File mp3;
-	private MusicMetadataSet dataset = null;
-	private EditText title_text, artist_text, album_text, year_text;
-	private Button save_button, cancel_button;
-	private String parent, filename;
+	public MP3File mp3;
+	public AbstractID3v2 id3v2tag;
+	public EditText title_text, artist_text, album_text, year_text;
+	public Button save_button, cancel_button;
+
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_mpfile_info);
-		// initialize EditTexts and Buttons
-		
 		title_text = (EditText) findViewById(R.id.song_edit_text);
-		//debug
-		//System.out.println(R);
 		artist_text = (EditText) findViewById(R.id.artist_edit_text);
 		album_text = (EditText) findViewById(R.id.album_edit_text);
 		year_text = (EditText) findViewById(R.id.year_edit_text);
 		save_button = (Button) findViewById(R.id.widget45);
 		cancel_button = (Button) findViewById(R.id.widget46);
-		parent = MPFileDetailActivity.currentMP3.getParent();
-		filename = MPFileDetailActivity.currentMP3.getFilename();
-		mp3 = new File(parent, filename);
+		save_button = (Button) findViewById(R.id.widget45);
+		cancel_button = (Button) findViewById(R.id.widget46);
 		
-		try
-		{
-			dataset = new MyID3().read(mp3);
-			IMusicMetadata data = dataset.getSimplified();
-			title_text.setText(data.getSongTitle());
-			artist_text.setText(data.getArtist());
-			album_text.setText(data.getAlbum());
-			year_text.setText(data.getYear());
-		} catch ( IOException e) {
+		try {
+			mp3 = new MP3File(MPFileDetailActivity.currentMP3.getMusic());
+			id3v2tag = mp3.getID3v2Tag();
+			title_text.setText(id3v2tag.getSongTitle());
+			artist_text.setText(id3v2tag.getLeadArtist());
+			album_text.setText(id3v2tag.getAlbumTitle());
+			year_text.setText(id3v2tag.getYearReleased());
+		} catch (Exception e) {
 			title_text.setText("");
 			artist_text.setText("");
 			album_text.setText("");
 			year_text.setText("");
 		}
+
 		
 		save_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				MusicMetadata set=new MusicMetadata("new");
-				set.setSongTitle(title_text.getText().toString());
-				set.setAlbum(album_text.getText().toString());
-				set.setArtist(artist_text.getText().toString());
-				set.setYear(year_text.getText().toString());
-				MPFileDetailActivity.currentMP3.setName(title_text.getText().toString()+".mp3");
+				id3v2tag.setSongTitle(title_text.getText().toString());
+				id3v2tag.setLeadArtist(artist_text.getText().toString());
+				id3v2tag.setAlbumTitle(album_text.getText().toString());
+				id3v2tag.setYearReleased(year_text.getText().toString());
 				MPFileDetailActivity.currentMP3.setTitle(title_text.getText().toString());
 				MPFileDetailActivity.currentMP3.setAlbum(album_text.getText().toString());
 				MPFileDetailActivity.currentMP3.setArtist(artist_text.getText().toString());
 				MPFileDetailActivity.currentMP3.setYear(year_text.getText().toString());
-				
-				
-				// create a new file with same name
-				File temp = new File( parent, title_text.getText().toString() + ".mp3" );
-				String dstpath = parent + "/" + filename;
+				mp3.setID3v1Tag(id3v2tag);
+				mp3.setID3v2Tag(id3v2tag);
 				
 				try {
-					temp.createNewFile();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				
-				try {
-					new MyID3().write(mp3, temp, dataset, set);
-					mp3.delete();
-					temp.renameTo(new File(dstpath));
-					MPFileDetailActivity.currentMP3.setMusic(parent, set.getSongTitle()+".mp3");
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (ID3WriteException e) {
+					mp3.save();
+				} catch (TagException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
 				finish();
 			}
 		});
@@ -104,24 +78,4 @@ public class MPFileTagInfo extends Activity {
 		});
 
 	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		try
-		{
-			dataset = new MyID3().read(mp3);
-			IMusicMetadata data = dataset.getSimplified();
-			title_text.setText(data.getSongTitle());
-			artist_text.setText(data.getArtist());
-			album_text.setText(data.getAlbum());
-			year_text.setText(data.getYear());
-		} catch ( IOException e) {
-			title_text.setText("");
-			artist_text.setText("");
-			album_text.setText("");
-			year_text.setText("");
-		}
-	}
-
 }
