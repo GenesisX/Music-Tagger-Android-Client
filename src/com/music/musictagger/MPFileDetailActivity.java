@@ -492,14 +492,17 @@ public class MPFileDetailActivity extends FragmentActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (mediaPlayer.isPlaying()) {
-			mediaPlayer.stop();
+		if (mediaPlayer.isPlaying() && isPlaying) {
+			mediaPlayer.pause();
 		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (!mediaPlayer.isPlaying() && isPlaying) {
+			mediaPlayer.start();
+		}
 		mTrackName.setText(currentMP3.getTitle());
 		mAlbumArtistName.setText(currentMP3.getAlbumArtist());
 		mTotalTime.setText(makeTimeString(currentMP3.getTotalTime()));
