@@ -64,28 +64,12 @@ public class MPFileListFragment extends ListFragment {
 		numOfFixings = getListView().getCheckedItemCount();
 		for (int i = 0; i < numOfFixings; i++) {
 			int index = checkedItems.keyAt(i);
-			// TODO : fix map
 //			MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
-//			MP3List.ITEMS.remove(index);
 			filename = MP3List.ITEMS.get(index).getFilename();
 			fileparent = MP3List.ITEMS.get(index).getParent();
 			op = new RecognizeFileOperation(index);
 			GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/" + filename);
 		}
-		
-		new ArrayAdapter<MP3List.MP3File>(
-				getActivity(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1,
-				MP3List.ITEMS);
-		
-		musicAdapter = new MusicAdapter(getActivity(),R.layout.list_item);
-		for(final MP3List.MP3File entry :MP3List.ITEMS) {
-			musicAdapter.add(entry);
-		}
-		
-		setListAdapter(musicAdapter);
-		musicAdapter.notifyDataSetChanged();
 	}
 
 	// container for metadata
@@ -121,6 +105,7 @@ public class MPFileListFragment extends ListFragment {
 				artist = bestResponse.getArtist();
 				album = bestResponse.getAlbumTitle();
 				year = bestResponse.getAlbumReleaseYear();
+				bestResponse.getCoverArt();
 				id3v2tag.setSongTitle(title);
 				id3v2tag.setLeadArtist(artist);
 				id3v2tag.setAlbumTitle(album);
@@ -134,7 +119,6 @@ public class MPFileListFragment extends ListFragment {
 				
 				task = new RecognizeFilesTask(mp3);
 				task.execute();
-
 			}
 
 			if (index == lastIndex)
@@ -142,6 +126,20 @@ public class MPFileListFragment extends ListFragment {
 				String successmsg = String.format("Sucessfully Fixed %d Music Files", numOfFixings); 
 				Toast.makeText(getActivity(), successmsg, Toast.LENGTH_SHORT).show();
 				progress.dismiss();
+				
+				new ArrayAdapter<MP3List.MP3File>(
+						getActivity(),
+						android.R.layout.simple_list_item_activated_1,
+						android.R.id.text1,
+						MP3List.ITEMS);
+				
+				musicAdapter = new MusicAdapter(getActivity(),R.layout.list_item);
+				for(final MP3List.MP3File entry :MP3List.ITEMS) {
+					musicAdapter.add(entry);
+				}
+				
+				setListAdapter(musicAdapter);
+				musicAdapter.notifyDataSetChanged();
 			}
 		}
 	}
@@ -156,7 +154,7 @@ public class MPFileListFragment extends ListFragment {
     	
     	@Override
         protected void onPreExecute() {
-			String successmsg = String.format("Sucessfully Fixed Tags for \"%s\"", title); 
+			String successmsg = String.format("Sucessfully Fixed Tags for\n\t \"%s\"", title); 
 			Toast.makeText(getActivity(), successmsg, Toast.LENGTH_SHORT).show();
         }
 
