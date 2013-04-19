@@ -8,7 +8,9 @@ import org.farng.mp3.id3.AbstractID3v2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.SparseBooleanArray;
@@ -23,13 +25,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
+import com.gracenote.mmid.MobileSDK.GNOperationStatusChanged;
 import com.gracenote.mmid.MobileSDK.GNOperations;
 import com.gracenote.mmid.MobileSDK.GNSearchResponse;
 import com.gracenote.mmid.MobileSDK.GNSearchResult;
 import com.gracenote.mmid.MobileSDK.GNSearchResultReady;
+import com.gracenote.mmid.MobileSDK.GNStatus;
 import com.music.musictagger.mp3.MP3List;
 
 /**
@@ -48,8 +51,13 @@ public class MPFileListFragment extends ListFragment {
 	private String title, artist, album, year;
 	private RecognizeFileOperation op;
 	private SparseBooleanArray checkedItems;
+	private int numOfProgress;
+	private ProgressDialog progress;
+	RecognizeFilesTask task;
 
 	public void fix() throws IOException, TagException {	
+		
+		numOfProgress = getListView().getCheckedItemCount();
 		for (int i = 0; i < getListView().getCheckedItemCount(); i++) {
 			int index = checkedItems.keyAt(i);
 			// TODO : fix map
@@ -77,7 +85,7 @@ public class MPFileListFragment extends ListFragment {
 	}
 
 	// container for metadata
-	private class RecognizeFileOperation implements GNSearchResultReady {
+	private class RecognizeFileOperation implements GNSearchResultReady,GNOperationStatusChanged {
 		
 		private MP3File mp3;
 		private AbstractID3v2 id3v2tag;
@@ -87,13 +95,20 @@ public class MPFileListFragment extends ListFragment {
 		public RecognizeFileOperation( int index ) throws IOException, TagException {
 			this.index = index;
 			this.mp3 = new MP3File(MP3List.ITEMS.get(index).getMusic());
+			numOfProgress--;
+		}
+		
+		@Override
+		public void GNStatusChanged(GNStatus status) {
+			updateProgress(status.getMessage());
 		}
 		
 		@Override
 		public void GNResultReady(GNSearchResult result) {
 			if (result.isFailure()) {
-				// TODO : return error message
-				System.out.println(result.getErrMessage());
+				// return error message
+				String errmsg = String.format("[%d] %s", result.getErrCode(),result.getErrMessage());
+				updateProgress(errmsg);
 			} else {
 				// fix
 				id3v2tag = mp3.getID3v2Tag();
@@ -114,17 +129,52 @@ public class MPFileListFragment extends ListFragment {
 				mp3.setID3v1Tag(id3v2tag);
 				mp3.setID3v2Tag(id3v2tag);
 				
-				try {
-					mp3.save();
-				} catch (TagException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				Toast.makeText(getActivity(), "Done", Toast.LENGTH_SHORT).show();
+				task = new RecognizeFilesTask(mp3);
+				task.execute();
+
 			}
+
+			if (numOfProgress == 0)
+				progress.dismiss();
 		}
+	}
+	
+    public class RecognizeFilesTask extends AsyncTask<Object , Object , String> {
+    	
+    	MP3File mp3;
+    	
+    	private RecognizeFilesTask(MP3File mp3) {
+    		this.mp3 = mp3;
+    	}
+    	
+    	@Override
+        protected void onPreExecute() {
+			String successmsg = String.format("Sucessfully Updated Tags for %s", title); 
+			updateProgress(successmsg);
+        }
+
+    	@Override
+        protected String doInBackground(Object... params) {
+
+			try {
+				mp3.save();
+			} catch (TagException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+    		return null;
+    	}      
+
+        @Override
+        protected void onPostExecute(String result) {
+        }
+    }
+	
+	private void updateProgress(String msg) {
+    	progress.setProgress( progress.getProgress()+1 );
+    	progress.setMessage(msg);
 	}
 
 	/**
@@ -218,11 +268,14 @@ public class MPFileListFragment extends ListFragment {
 				case R.id.fix_tag:
 
 					AlertDialog.Builder fixDialog = new AlertDialog.Builder(getActivity());
-					fixDialog.setMessage("are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
+					fixDialog.setMessage("Are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int id) {
 							checkedItems = getListView().getCheckedItemPositions();
 							try {
+					    		progress=new ProgressDialog(getActivity());
+					    		progress.setMessage("Starting to FingerPrint...");
+					    		progress.show();
 								fix();
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
