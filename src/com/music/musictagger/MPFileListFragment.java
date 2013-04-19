@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
 import com.gracenote.mmid.MobileSDK.GNOperationStatusChanged;
@@ -51,14 +52,17 @@ public class MPFileListFragment extends ListFragment {
 	private String title, artist, album, year;
 	private RecognizeFileOperation op;
 	private SparseBooleanArray checkedItems;
-	private int numOfProgress;
+	private int lastIndex;
+	private int numOfFixings;
 	private ProgressDialog progress;
 	RecognizeFilesTask task;
 
 	public void fix() throws IOException, TagException {	
+
 		
-		numOfProgress = getListView().getCheckedItemCount();
-		for (int i = 0; i < getListView().getCheckedItemCount(); i++) {
+		lastIndex = checkedItems.keyAt(getListView().getCheckedItemCount() - 1);
+		numOfFixings = getListView().getCheckedItemCount();
+		for (int i = 0; i < numOfFixings; i++) {
 			int index = checkedItems.keyAt(i);
 			// TODO : fix map
 //			MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
@@ -79,9 +83,9 @@ public class MPFileListFragment extends ListFragment {
 		for(final MP3List.MP3File entry :MP3List.ITEMS) {
 			musicAdapter.add(entry);
 		}
+		
 		setListAdapter(musicAdapter);
 		musicAdapter.notifyDataSetChanged();
-		
 	}
 
 	// container for metadata
@@ -95,7 +99,6 @@ public class MPFileListFragment extends ListFragment {
 		public RecognizeFileOperation( int index ) throws IOException, TagException {
 			this.index = index;
 			this.mp3 = new MP3File(MP3List.ITEMS.get(index).getMusic());
-			numOfProgress--;
 		}
 		
 		@Override
@@ -109,6 +112,7 @@ public class MPFileListFragment extends ListFragment {
 				// return error message
 				String errmsg = String.format("[%d] %s", result.getErrCode(),result.getErrMessage());
 				updateProgress(errmsg);
+
 			} else {
 				// fix
 				id3v2tag = mp3.getID3v2Tag();
@@ -117,7 +121,6 @@ public class MPFileListFragment extends ListFragment {
 				artist = bestResponse.getArtist();
 				album = bestResponse.getAlbumTitle();
 				year = bestResponse.getAlbumReleaseYear();
-				
 				id3v2tag.setSongTitle(title);
 				id3v2tag.setLeadArtist(artist);
 				id3v2tag.setAlbumTitle(album);
@@ -134,8 +137,12 @@ public class MPFileListFragment extends ListFragment {
 
 			}
 
-			if (numOfProgress == 0)
+			if (index == lastIndex)
+			{
+				String successmsg = String.format("Sucessfully Fixed %d Music Files", numOfFixings); 
+				Toast.makeText(getActivity(), successmsg, Toast.LENGTH_SHORT).show();
 				progress.dismiss();
+			}
 		}
 	}
 	
@@ -149,13 +156,12 @@ public class MPFileListFragment extends ListFragment {
     	
     	@Override
         protected void onPreExecute() {
-			String successmsg = String.format("Sucessfully Updated Tags for %s", title); 
-			updateProgress(successmsg);
+			String successmsg = String.format("Sucessfully Fixed Tags for \"%s\"", title); 
+			Toast.makeText(getActivity(), successmsg, Toast.LENGTH_SHORT).show();
         }
 
     	@Override
         protected String doInBackground(Object... params) {
-
 			try {
 				mp3.save();
 			} catch (TagException e) {
@@ -163,7 +169,6 @@ public class MPFileListFragment extends ListFragment {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
     		return null;
     	}      
 
@@ -298,7 +303,7 @@ public class MPFileListFragment extends ListFragment {
 				case R.id.delete:
 
 					AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getActivity());
-					deleteDialog.setMessage("are you sure to delete?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
+					deleteDialog.setMessage("Are you sure to delete?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							checkedItems = getListView().getCheckedItemPositions();
 							for (int i = getListView().getCheckedItemCount() - 1; i >= 0; --i) {
