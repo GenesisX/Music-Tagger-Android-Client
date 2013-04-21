@@ -9,13 +9,19 @@ import org.cmc.music.metadata.MusicMetadata;
 import org.cmc.music.metadata.MusicMetadataSet;
 import org.cmc.music.myid3.MyID3;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.gracenote.mmid.MobileSDK.GNConfig;
 import com.gracenote.mmid.MobileSDK.GNOperations;
@@ -48,17 +54,11 @@ public class MPFileListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	//search mp3 file under Galaxy S3 external sd card
-    	if(MP3List.ITEM_MAP.size() == 0){
-    		MP3List.searchDir("/mnt/extSdCard/");
-    		MP3List.searchDir("/sdcard");
-    	}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mpfile_list);
-        
 /*		if (findViewById(R.id.mpfile_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -143,15 +143,80 @@ public class MPFileListActivity extends FragmentActivity implements
 	        	//setAdapter();
 	            return true;
 	        case R.id.browse:
+	        	AlertDialog.Builder alert = new AlertDialog.Builder(this);
+	        	alert.setTitle("Search a Folder for MP3");
+	        	alert.setMessage("Enter a folder path contains MP3 files");
+
+	        	// Set an EditText view to get user input 
+	        	final EditText input = new EditText(this);
+	        	alert.setView(input);
+	        	alert.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+		        	public void onClick(DialogInterface dialog, int whichButton) {
+		        		MP3List.searchDir(getApplicationContext(),input.getText().toString());
+			        	MPFileListFragment.musicAdapter.clear();
+				        for(final MP3List.MP3File entry :MP3List.ITEMS) {
+				            	MPFileListFragment.musicAdapter.add(entry);
+				            }
+				        MPFileListFragment.musicAdapter.notifyDataSetChanged();
+		        	  }
+		        	} );
+
+	        	alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	        	  public void onClick(DialogInterface dialog, int whichButton) {
+	        	  }
+	        	});
+
+	        	alert.show();
+	        	return true;
+	        case R.id.sync_by_lan:
+	        	AlertDialog.Builder sync_alert = new AlertDialog.Builder(this);
+	        	LinearLayout lila1= new LinearLayout(this);
+	            lila1.setOrientation(1);
+
+	        	sync_alert.setTitle("Sync With Lan");
+
+	        	// Set an EditText view to get user input 
+	        	final EditText input1 = new EditText(this);
+	        	final EditText input2 = new EditText(this);
+	        	TextView msg1 = new TextView(this);
+	        	msg1.setText("IP Adress: ");
+	        	TextView msg2 = new TextView(this);
+	        	msg2.setText("Port: ");
+	        	lila1.addView(msg1);
+	            lila1.addView(input1);
+	            lila1.addView(msg2);
+	            lila1.addView(input2);
+	        	sync_alert.setView(lila1);
+	        	sync_alert.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+		        	public void onClick(DialogInterface dialog, int whichButton) {
+		        		//Add operation here
+		        		
+		        		
+			        	MPFileListFragment.musicAdapter.clear();
+				        for(final MP3List.MP3File entry :MP3List.ITEMS) {
+				            	MPFileListFragment.musicAdapter.add(entry);
+				            }
+				        MPFileListFragment.musicAdapter.notifyDataSetChanged();
+		        	  }
+		        	} );
+
+	        	sync_alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	        	  public void onClick(DialogInterface dialog, int whichButton) {
+	        	  //Cancelled   
+	        	  }
+	        	});
+	        	sync_alert.show();
+	        	return true;
+	        case R.id.sync:
+	        	ProgressDialog progress = new ProgressDialog(this);
+	        	progress.setTitle("Syncing");
+	        	progress.setMessage("Wait while Syncing...");
+	        	progress.show();
+	        	//Add Operation here
 	        	
-	        		MP3List.searchDir("/mnt/extSdCard/");
-	        		MP3List.searchDir("/sdcard");
-	        		MPFileListFragment.musicAdapter.clear();
-		            for(final MP3List.MP3File entry :MP3List.ITEMS) {
-		            	MPFileListFragment.musicAdapter.add(entry);
-		            }
-		            
-		            MPFileListFragment.musicAdapter.notifyDataSetChanged();
+	        	
+	        	// To dismiss the dialog
+	        	progress.dismiss();
 	        	return true;
 	     }
 	    return super.onOptionsItemSelected(item);

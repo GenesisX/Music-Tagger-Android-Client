@@ -9,15 +9,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
+
 
 import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.UnsupportedTagException;
+import com.music.musictagger.R;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -58,9 +64,10 @@ public class MP3List {
 		Collections.sort(MP3List.ITEMS, new AlbumComparator());
 	}
 	
-	public static void searchDir(String searchpath) {
+	public static void searchDir(Context now,String searchpath) {
 		String[] filenames;
 		String fileparent;
+		int count = 0;
 		File folder = new File(searchpath);
 		if (folder.exists()) {
 			if (folder.isDirectory()) {
@@ -75,18 +82,15 @@ public class MP3List {
 				if (isValidFile(filenames[i])
 						&& !(ITEM_MAP.containsKey(filenames[i]))) {
 					addItem(new MP3File(filenames[i], fileparent));
+					count++;
+				}
+				else if(filenames[i].endsWith("/")){
+					searchDir(now,filenames[i]);
 				}
 			}
-			if (hasFiles) {
-
-			} else {
-				// updateStatus("Files not Supported.we currently support only mp3 files.",true);
-			}
-
 		}
-		// else
-		// Toast.makeText(getApplicationContext(), "No File/Folder",
-		// Toast.LENGTH_LONG).show();
+		Toast.makeText(now, count + " files added.", Toast.LENGTH_LONG).show();
+		return;
 	}
 
 	public static class MP3File implements OnCompletionListener {
