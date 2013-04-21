@@ -1,7 +1,13 @@
 package com.music.musictagger;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.io.UnsupportedEncodingException;
 
 import org.cmc.music.common.ID3WriteException;
@@ -191,6 +197,39 @@ public class MPFileListActivity extends FragmentActivity implements
 		        	public void onClick(DialogInterface dialog, int whichButton) {
 		        		//Add operation here
 		        		
+		        		Socket socket;
+					try {
+						String ipadress = ;
+						int port = ;
+						socket = new Socket(ipadress,port);
+						DataInputStream datainput = new DataInputStream(socket.getInputStream());
+						int count = datainput.readInt();
+						for( int i = 0 ; i < count ; i++ ){
+							String filename = new String();
+							int namelength = datainput.readInt();
+							for( int j = 0 ; j < namelength ; j++ ){
+								filename = filename + datainput.readChar();
+							}
+							long size = datainput.readLong();
+							byte data;
+							File file = new File(filename);
+							FileOutputStream outfile = new FileOutputStream(file);
+							for( int j = 0 ; j < size ; j++ ){
+								data = datainput.readByte();
+								outfile.write(data);
+							}
+							outfile.close();
+						}
+						datainput.close();
+						socket.close();
+				
+					} catch (UnknownHostException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 		        		
 			        	MPFileListFragment.musicAdapter.clear();
 				        for(final MP3List.MP3File entry :MP3List.ITEMS) {
@@ -214,6 +253,42 @@ public class MPFileListActivity extends FragmentActivity implements
 	        	progress.show();
 	        	//Add Operation here
 	        	
+	       
+			Socket socket;
+			try {
+				socket = new Socket("sslab04.cs.purdue.edu",8080);
+				DataOutputStream dataoutput = new DataOutputStream(socket.getOutputStream());
+				dataoutput.writeInt(0);
+				DataInputStream datainput = new DataInputStream(socket.getInputStream());
+				int count = datainput.readInt();
+				for( int i = 0 ; i < count ; i++ ){
+					String filename = new String();
+					int namelength = datainput.readInt();
+				
+					for( int j = 0 ; j < namelength ; j++ ){
+						filename = filename + datainput.readChar();
+					}
+					long size = datainput.readLong();
+					byte data;
+					File file = new File(filename);
+					FileOutputStream outfile = new FileOutputStream(file);
+					for( int j = 0 ; j < size ; j++ ){
+						data = datainput.readByte();
+						outfile.write(data);
+					}
+					outfile.close();
+				}
+				datainput.close();
+				dataoutput.close();
+				socket.close();
+			
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        	
 	        	// To dismiss the dialog
 	        	progress.dismiss();
