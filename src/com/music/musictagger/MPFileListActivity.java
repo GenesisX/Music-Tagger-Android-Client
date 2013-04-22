@@ -20,6 +20,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -60,6 +62,13 @@ public class MPFileListActivity extends FragmentActivity implements
 	 * device.
 	 */
 	private boolean mTwoPane;
+	public ProgressDialog pd;
+	public Handler finishedHandler = new Handler() {
+        @Override public void handleMessage(Message msg) {
+	        pd.dismiss();
+	        //start new activity
+	    }
+	};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	//search mp3 file under Galaxy S3 external sd card
@@ -152,20 +161,20 @@ public class MPFileListActivity extends FragmentActivity implements
 	        	AlertDialog.Builder alert = new AlertDialog.Builder(this);
 	        	alert.setTitle("Search a Folder for MP3");
 	        	alert.setMessage("Enter a folder path contains MP3 files");
-
 	        	// Set an EditText view to get user input 
 	        	final EditText input = new EditText(this);
 	        	alert.setView(input);
+	        	
 	        	alert.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
 		        	public void onClick(DialogInterface dialog, int whichButton) {
-		        		MP3List.searchDir(getApplicationContext(),input.getText().toString());
-			        	MPFileListFragment.musicAdapter.clear();
-				        for(final MP3List.MP3File entry :MP3List.ITEMS) {
-				            	MPFileListFragment.musicAdapter.add(entry);
-				            }
-				        MPFileListFragment.musicAdapter.notifyDataSetChanged();
-		        	  }
-		        	} );
+		        	 MP3List.searchDir(input.getText().toString());
+		        	 MPFileListFragment.musicAdapter.clear();
+		             for(final MP3List.MP3File entry :MP3List.ITEMS) {
+		                 	MPFileListFragment.musicAdapter.add(entry);
+		                 }
+		             MPFileListFragment.musicAdapter.notifyDataSetChanged();
+		             }
+		        });
 
 	        	alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 	        	  public void onClick(DialogInterface dialog, int whichButton) {
@@ -199,8 +208,8 @@ public class MPFileListActivity extends FragmentActivity implements
 		        		
 		        		Socket socket;
 					try {
-						String ipadress = ;
-						int port = ;
+						String ipadress = input1.getText().toString();
+						int port = Integer.parseInt(input2.getText().toString());
 						socket = new Socket(ipadress,port);
 						DataInputStream datainput = new DataInputStream(socket.getInputStream());
 						int count = datainput.readInt();
@@ -247,37 +256,38 @@ public class MPFileListActivity extends FragmentActivity implements
 	        	sync_alert.show();
 	        	return true;
 	        case R.id.sync:
-	        	ProgressDialog progress = new ProgressDialog(this);
-	        	progress.setTitle("Syncing");
-	        	progress.setMessage("Wait while Syncing...");
-	        	progress.show();
+	        	pd = new ProgressDialog(this);
+	        	pd.setTitle("Downloading");
+	        	pd.setMessage("Wait while downloading from server...");
+	        	pd.show();
+	        	Thread thread = new Thread(){
 	        	//Add Operation here
-	        	
-	       
-			Socket socket;
-			try {
-				socket = new Socket("sslab04.cs.purdue.edu",8080);
-				DataOutputStream dataoutput = new DataOutputStream(socket.getOutputStream());
-				dataoutput.writeInt(0);
-				DataInputStream datainput = new DataInputStream(socket.getInputStream());
-				int count = datainput.readInt();
-				for( int i = 0 ; i < count ; i++ ){
-					String filename = new String();
-					int namelength = datainput.readInt();
+	        	@Override 
+	        	public void run(){
+	        	Socket socket;
+	        		try {
+	        			socket = new Socket("sslab04.cs.purdue.edu",8080);
+	        			DataOutputStream dataoutput = new DataOutputStream(socket.getOutputStream());
+	        			dataoutput.writeInt(0);
+	        			DataInputStream datainput = new DataInputStream(socket.getInputStream());
+	        			int count = datainput.readInt();
+	        			for( int i = 0 ; i < count ; i++ ){
+	        				String filename = new String();
+	        				int namelength = datainput.readInt();
 				
-					for( int j = 0 ; j < namelength ; j++ ){
-						filename = filename + datainput.readChar();
-					}
-					long size = datainput.readLong();
-					byte data;
-					File file = new File(filename);
-					FileOutputStream outfile = new FileOutputStream(file);
-					for( int j = 0 ; j < size ; j++ ){
-						data = datainput.readByte();
-						outfile.write(data);
-					}
-					outfile.close();
-				}
+	        				for( int j = 0 ; j < namelength ; j++ ){
+	        					filename = filename + datainput.readChar();
+	        					}
+	        				long size = datainput.readLong();
+	        				byte data;
+	        				File file = new File("/sdcard/"+filename);
+	        				FileOutputStream outfile = new FileOutputStream(file);
+	        				for( int j = 0 ; j < size ; j++ ){
+	        					data = datainput.readByte();
+	        					outfile.write(data);
+	        					}
+	        				outfile.close();
+				   }
 				datainput.close();
 				dataoutput.close();
 				socket.close();
@@ -289,11 +299,15 @@ public class MPFileListActivity extends FragmentActivity implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        	
+	        		finishedHandler.sendEmptyMessage(0);
+	        	}
+	        	};
+	        thread.start();
 	        	// To dismiss the dialog
-	        	progress.dismiss();
-	        	return true;
+	        
+	        return true;
 	     }
+	   
 	    return super.onOptionsItemSelected(item);
 	}
 	@Override

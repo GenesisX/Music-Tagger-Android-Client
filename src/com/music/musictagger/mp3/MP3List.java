@@ -64,10 +64,10 @@ public class MP3List {
 		Collections.sort(MP3List.ITEMS, new AlbumComparator());
 	}
 	
-	public static void searchDir(Context now,String searchpath) {
+	public static void searchDir(String searchpath) {
 		String[] filenames;
 		String fileparent;
-		int count = 0;
+
 		File folder = new File(searchpath);
 		if (folder.exists()) {
 			if (folder.isDirectory()) {
@@ -82,14 +82,13 @@ public class MP3List {
 				if (isValidFile(filenames[i])
 						&& !(ITEM_MAP.containsKey(filenames[i]))) {
 					addItem(new MP3File(filenames[i], fileparent));
-					count++;
+					//Toast.makeText(now, fileparent+"/"+filenames[i] + " added.", Toast.LENGTH_SHORT).show();
 				}
-				else if(filenames[i].endsWith("/")){
-					searchDir(now,filenames[i]);
-				}
+				//else if(new File(fileparent+"/"+filenames[i]).isDirectory()){
+				//	searchDir(fileparent+"/"+filenames[i]);
+				//}
 			}
 		}
-		Toast.makeText(now, count + " files added.", Toast.LENGTH_LONG).show();
 		return;
 	}
 
