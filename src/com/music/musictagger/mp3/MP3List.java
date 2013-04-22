@@ -84,10 +84,11 @@ public class MP3List {
 					addItem(new MP3File(filenames[i], fileparent));
 					//Toast.makeText(now, fileparent+"/"+filenames[i] + " added.", Toast.LENGTH_SHORT).show();
 				}
-				//else if(new File(fileparent+"/"+filenames[i]).isDirectory()){
+				//else if(new File(fileparent+"/"+filenames[i]).exists()&&new File(fileparent+"/"+filenames[i]).isDirectory()){
 				//	searchDir(fileparent+"/"+filenames[i]);
 				//}
 			}
+			
 		}
 		return;
 	}

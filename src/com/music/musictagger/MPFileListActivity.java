@@ -67,6 +67,11 @@ public class MPFileListActivity extends FragmentActivity implements
         @Override public void handleMessage(Message msg) {
 	        pd.dismiss();
 	        //start new activity
+	        MPFileListFragment.musicAdapter.clear();
+            for(final MP3List.MP3File entry :MP3List.ITEMS) {
+                	MPFileListFragment.musicAdapter.add(entry);
+                }
+            MPFileListFragment.musicAdapter.notifyDataSetChanged();
 	    }
 	};
     @Override
@@ -164,15 +169,21 @@ public class MPFileListActivity extends FragmentActivity implements
 	        	// Set an EditText view to get user input 
 	        	final EditText input = new EditText(this);
 	        	alert.setView(input);
-	        	
+	        	pd = new ProgressDialog(this);
 	        	alert.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
-		        	public void onClick(DialogInterface dialog, int whichButton) {
+		        	public void onClick(DialogInterface dialog, int whichButton) {		        		
+			         pd.setTitle("Searching");
+			         pd.setMessage("Wait while searching...");
+			         pd.show();
+			         Thread searchf = new Thread(){
+				        	//Add Operation here
+				        	@Override 
+				        	public void run(){
 		        	 MP3List.searchDir(input.getText().toString());
-		        	 MPFileListFragment.musicAdapter.clear();
-		             for(final MP3List.MP3File entry :MP3List.ITEMS) {
-		                 	MPFileListFragment.musicAdapter.add(entry);
-		                 }
-		             MPFileListFragment.musicAdapter.notifyDataSetChanged();
+		        	 finishedHandler.sendEmptyMessage(0);
+		        	 }
+				        	};
+		        	 searchf.start();
 		             }
 		        });
 
@@ -221,7 +232,7 @@ public class MPFileListActivity extends FragmentActivity implements
 							}
 							long size = datainput.readLong();
 							byte data;
-							File file = new File(filename);
+							File file = new File("/sdcard/"+filename);
 							FileOutputStream outfile = new FileOutputStream(file);
 							for( int j = 0 ; j < size ; j++ ){
 								data = datainput.readByte();
@@ -280,7 +291,7 @@ public class MPFileListActivity extends FragmentActivity implements
 	        					}
 	        				long size = datainput.readLong();
 	        				byte data;
-	        				File file = new File("/sdcard/"+filename);
+	        				File file = new File("/sdcard/received/"+filename);
 	        				FileOutputStream outfile = new FileOutputStream(file);
 	        				for( int j = 0 ; j < size ; j++ ){
 	        					data = datainput.readByte();
@@ -291,7 +302,7 @@ public class MPFileListActivity extends FragmentActivity implements
 				datainput.close();
 				dataoutput.close();
 				socket.close();
-			
+				finishedHandler.sendEmptyMessage(0);
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -299,7 +310,7 @@ public class MPFileListActivity extends FragmentActivity implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        		finishedHandler.sendEmptyMessage(0);
+	        		
 	        	}
 	        	};
 	        thread.start();
