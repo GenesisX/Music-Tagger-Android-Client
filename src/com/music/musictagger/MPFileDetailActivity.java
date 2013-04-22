@@ -13,7 +13,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -459,24 +458,13 @@ public class MPFileDetailActivity extends FragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			NavUtils.navigateUpTo(this, new Intent(this,
-					MPFileListActivity.class));
-					break;
+				finish();
+				break;
 		case R.id.fix_manually:
 				Log.w("menu","fix manually");
 				Intent nextActivity = new Intent(this, MPFileTagInfo.class);
 				startActivity(nextActivity);
 				break;
-		case R.id.fix_tag:
-			Log.w("menu","fix tag");
-			break;
-		case R.id.find_lyrics:
-			Log.w("menu","find lyrics");
-			break;
-		case R.id.fix_album:
-			Log.w("menu","fixalbum");
-			break;
-
 		}
 
 		return super.onOptionsItemSelected(item);

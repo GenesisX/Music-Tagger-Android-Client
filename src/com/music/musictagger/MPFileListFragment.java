@@ -45,6 +45,7 @@ import com.music.musictagger.mp3.MP3List;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.*
  */
+
 public class MPFileListFragment extends ListFragment {
 
 	private GNConfig config;
@@ -57,19 +58,38 @@ public class MPFileListFragment extends ListFragment {
 	private ProgressDialog progress;
 	RecognizeFilesTask task;
 
-	public void fix() throws IOException, TagException {	
-
+	public class Fix extends AsyncTask<Object , Object , String> {	
 		
-		lastIndex = checkedItems.keyAt(getListView().getCheckedItemCount() - 1);
-		numOfFixings = getListView().getCheckedItemCount();
-		for (int i = 0; i < numOfFixings; i++) {
-			int index = checkedItems.keyAt(i);
-//			MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
-			filename = MP3List.ITEMS.get(index).getFilename();
-			fileparent = MP3List.ITEMS.get(index).getParent();
-			op = new RecognizeFileOperation(index);
-			GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/" + filename);
-		}
+	   	@Override
+        protected void onPreExecute() {
+	   		progress=new ProgressDialog(getActivity());
+			progress.setMessage("Starting to FingerPrint...");
+			progress.show();
+        }
+		
+    	@Override
+        protected String doInBackground(Object... params) {
+    		
+    		for (int i = 0; i < numOfFixings; i++) {
+    			int index = checkedItems.keyAt(i);
+//    			MP3List.ITEM_MAP.remove(MP3List.ITEMS.get(index).getFilename());
+    			filename = MP3List.ITEMS.get(index).getFilename();
+    			fileparent = MP3List.ITEMS.get(index).getParent();
+    			try {
+					op = new RecognizeFileOperation(index);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TagException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    			GNOperations.recognizeMIDFileFromFile(op, config, fileparent + "/" + filename);
+    		}
+    		
+    		return null;
+    	}      
+		
 	}
 
 	// container for metadata
@@ -105,7 +125,6 @@ public class MPFileListFragment extends ListFragment {
 				artist = bestResponse.getArtist();
 				album = bestResponse.getAlbumTitle();
 				year = bestResponse.getAlbumReleaseYear();
-				bestResponse.getCoverArt();
 				id3v2tag.setSongTitle(title);
 				id3v2tag.setLeadArtist(artist);
 				id3v2tag.setAlbumTitle(album);
@@ -274,20 +293,12 @@ public class MPFileListFragment extends ListFragment {
 					fixDialog.setMessage("Are you sure to fix?").setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int id) {
-							checkedItems = getListView().getCheckedItemPositions();
-							try {
-					    		progress=new ProgressDialog(getActivity());
-					    		progress.setMessage("Starting to FingerPrint...");
-					    		progress.show();
-								fix();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (TagException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							mode.finish();							
+
+				    		checkedItems = getListView().getCheckedItemPositions();
+				    		lastIndex = checkedItems.keyAt(getListView().getCheckedItemCount() - 1);
+				    		numOfFixings = getListView().getCheckedItemCount();
+							new Fix().execute();
+				    		mode.finish();
 						}
 					})
 					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
